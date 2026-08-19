@@ -4,160 +4,644 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#07111f">
-<title>Cardioide Interativo — String Art e Feixe de Luz</title>
+<title>Cardioide Interativo — String Art e Reflexão da Luz</title>
 <style>
 :root{
-  --bg:#07111f;--panel:#0e1a2e;--text:#f4f8ff;--muted:#9fb0cc;
-  --cyan:#62e8ff;--yellow:#ffd166;--green:#7cf0ad;
-  --border:rgba(255,255,255,.10);--safe:max(10px,env(safe-area-inset-bottom));
+  --bg:#07111f; --panel:#0f1b31; --text:#f4f8ff; --muted:#9fb0cc;
+  --cyan:#62e8ff; --yellow:#ffd166; --green:#7cf0ad; --pink:#ff8bd3;
+  --border:rgba(255,255,255,.10); --safe:max(10px, env(safe-area-inset-bottom));
 }
-*{box-sizing:border-box} html{-webkit-text-size-adjust:100%}
-body{margin:0;min-height:100vh;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--text);
-background:radial-gradient(circle at 15% 5%,rgba(43,87,150,.30),transparent 29rem),
-radial-gradient(circle at 90% 92%,rgba(39,87,116,.22),transparent 26rem),var(--bg)}
-button,input{font:inherit}.app{width:min(100%,1440px);margin:auto;padding:10px 10px calc(104px + var(--safe))}
-.card{border:1px solid var(--border);border-radius:20px;background:linear-gradient(180deg,rgba(18,31,53,.97),rgba(10,19,34,.97));box-shadow:0 18px 55px rgba(0,0,0,.32)}
-.hero{padding:15px;margin-bottom:10px}.eyebrow{color:var(--cyan);font-size:.72rem;font-weight:900;letter-spacing:.12em;text-transform:uppercase;margin-bottom:5px}
-h1{margin:0;font-size:clamp(1.45rem,6.5vw,2.55rem);line-height:1.04}.sub{margin:7px 0 0;color:var(--muted);font-size:.91rem;line-height:1.42}
-.layout{display:grid;gap:10px}.stage{overflow:hidden}.stage-head{padding:10px 12px 0;display:flex;gap:10px;justify-content:space-between;align-items:flex-start}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; min-height:100vh; color:var(--text);
+  font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+  background:
+    radial-gradient(circle at 15% 5%, rgba(43,87,150,.30), transparent 29rem),
+    radial-gradient(circle at 90% 92%, rgba(39,87,116,.20), transparent 26rem),
+    var(--bg);
+}
+button,input{font:inherit}
+.app{width:min(100%,1440px);margin:auto;padding:10px 10px calc(104px + var(--safe))}
+.card{
+  border:1px solid var(--border); border-radius:20px;
+  background:linear-gradient(180deg, rgba(18,31,53,.97), rgba(10,19,34,.97));
+  box-shadow:0 18px 55px rgba(0,0,0,.32);
+}
+.hero{padding:15px;margin-bottom:10px}
+.eyebrow{color:var(--cyan);font-size:.72rem;font-weight:900;letter-spacing:.12em;text-transform:uppercase;margin-bottom:5px}
+h1{margin:0;font-size:clamp(1.42rem,6.3vw,2.48rem);line-height:1.04}
+.sub{margin:7px 0 0;color:var(--muted);font-size:.92rem;line-height:1.42}
+.layout{display:grid;gap:10px}
+.stage{overflow:hidden}
+.stage-head{padding:10px 12px 0;display:flex;gap:10px;justify-content:space-between;align-items:flex-start}
 .status-label{color:var(--muted);text-transform:uppercase;font-size:.64rem;letter-spacing:.10em;font-weight:900}
-.movement{font-size:clamp(1.4rem,7vw,2.15rem);color:var(--yellow);font-weight:950;line-height:1.05;margin-top:2px}
-.progress{color:var(--muted);font-size:.78rem;margin-top:3px}.mode-badge{border:1px solid rgba(98,232,255,.24);background:rgba(98,232,255,.08);color:var(--cyan);font-weight:850;font-size:.74rem;padding:8px 10px;border-radius:999px}
-.svg-wrap{width:100%;aspect-ratio:1/1;min-height:320px;max-height:74vh;padding:0 4px 5px}svg{width:100%;height:100%;display:block;touch-action:none}
-.circle{fill:rgba(4,10,20,.46);stroke:#526b92;stroke-width:1.4}.edge-complete{stroke:#73dff0;stroke-width:1.05;stroke-opacity:.26;vector-effect:non-scaling-stroke}
-.active-path{fill:none;stroke:var(--yellow);stroke-width:3.4;stroke-linecap:round;vector-effect:non-scaling-stroke;filter:url(#softGlow)}
-.beam-trail{fill:none;stroke:url(#beamGradient);stroke-width:7;stroke-linecap:round;vector-effect:non-scaling-stroke;filter:url(#strongGlow)}
-.point{fill:#edf5ff;stroke:#081322;stroke-width:1.2}.point.start{fill:var(--yellow)}.point.end{fill:var(--green)}
-.num{fill:#a9b9d1;font-size:11px;font-weight:800;text-anchor:middle;dominant-baseline:middle}.num.start{fill:var(--yellow);font-size:14px}.num.end{fill:var(--green);font-size:14px}
-.centerTitle{fill:#d9e5f8;font-size:17px;text-anchor:middle;font-weight:950}.centerSub{fill:#8194b4;font-size:12px;text-anchor:middle}
-.side{padding:14px}.section-title{margin:0 0 8px;font-size:1rem}.formula{background:rgba(98,232,255,.07);border:1px solid rgba(98,232,255,.20);padding:11px;border-radius:14px;color:#dcecff;line-height:1.45;font-size:.88rem}.formula b{color:var(--cyan)}
-.controls{display:grid;gap:13px;margin-top:13px}.control{border-top:1px solid rgba(255,255,255,.07);padding-top:11px;display:grid;grid-template-columns:1fr auto;gap:6px 10px;align-items:center}
-.control label{font-size:.88rem;font-weight:800}.control output{color:var(--cyan);font-weight:950}.control input[type=range]{grid-column:1/-1;width:100%;height:34px;accent-color:var(--cyan)}
-.segmented{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:6px}.segmented button{min-height:44px;border:1px solid var(--border);border-radius:12px;color:var(--text);background:#1a2943;font-weight:850}
-.segmented button.active{background:var(--cyan);color:#06111d;border-color:transparent}.toggle{min-height:44px;display:flex;align-items:center;gap:9px;font-size:.88rem;color:var(--muted);font-weight:700}.toggle input{width:20px;height:20px;accent-color:var(--cyan)}
-.physics{margin-top:12px;border:1px solid rgba(198,167,255,.22);background:rgba(198,167,255,.065);border-radius:14px;padding:11px}.physics h3{margin:0 0 7px;color:#e8dcff;font-size:.92rem}
-.physics-grid{display:grid;grid-template-columns:1fr auto;gap:4px 10px;font-size:.82rem;line-height:1.45}.physics-grid .k{color:var(--muted)}.physics-grid .v{font-weight:900}.note{margin-top:8px;color:var(--muted);font-size:.76rem;line-height:1.4}
-.bottom{position:fixed;z-index:40;left:0;right:0;bottom:0;padding:8px 9px var(--safe);background:linear-gradient(180deg,transparent,rgba(7,17,31,.88) 20%,rgba(7,17,31,.98) 46%);backdrop-filter:blur(12px)}
-.bar{width:min(100%,780px);margin:auto;display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.action{min-height:56px;border:0;border-radius:15px;font-weight:950;background:#263754;color:var(--text)}
-.action.primary{background:var(--cyan);color:#06111d}.action.hot{background:var(--yellow);color:#1b1403}.action:disabled{opacity:.42}.action span{display:block}.action .ic{font-size:1.05rem;line-height:1}.action .tx{font-size:.7rem;margin-top:3px}
-@media(min-width:900px){.app{padding:18px}.layout{grid-template-columns:minmax(0,1fr) 360px;align-items:start}.svg-wrap{height:calc(100vh - 210px);min-height:600px;max-height:none;aspect-ratio:auto}.side{position:sticky;top:18px}.bottom{position:static;background:none;backdrop-filter:none;padding:10px 0 0}.bar{width:100%}}
+.movement{font-size:clamp(1.28rem,7vw,2.08rem);color:var(--yellow);font-weight:950;line-height:1.05;margin-top:2px}
+.progress{color:var(--muted);font-size:.78rem;margin-top:3px}
+.mode-badge{border:1px solid rgba(98,232,255,.24);background:rgba(98,232,255,.08);color:var(--cyan);font-weight:850;font-size:.74rem;padding:8px 10px;border-radius:999px}
+.svg-wrap{width:100%;aspect-ratio:1/1;min-height:320px;max-height:74vh;padding:0 4px 5px}
+svg{width:100%;height:100%;display:block;touch-action:none}
+
+.side{padding:14px}
+.section-title{margin:0 0 8px;font-size:1rem}
+.formula{
+  background:rgba(98,232,255,.07); border:1px solid rgba(98,232,255,.20);
+  padding:11px; border-radius:14px; color:#dcecff; line-height:1.45; font-size:.88rem
+}
+.formula b{color:var(--cyan)}
+.controls{display:grid;gap:13px;margin-top:13px}
+.control{border-top:1px solid rgba(255,255,255,.07);padding-top:11px;display:grid;grid-template-columns:1fr auto;gap:6px 10px;align-items:center}
+.control label{font-size:.88rem;font-weight:800}
+.control output{color:var(--cyan);font-weight:950}
+.control input[type=range]{grid-column:1/-1;width:100%;height:34px;accent-color:var(--cyan)}
+.segmented{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.segmented button{
+  min-height:44px; border:1px solid var(--border); border-radius:12px;
+  color:var(--text); background:#1a2943; font-weight:850
+}
+.segmented button.active{background:var(--cyan);color:#06111d;border-color:transparent}
+.toggle{min-height:44px;display:flex;align-items:center;gap:9px;font-size:.88rem;color:var(--muted);font-weight:700}
+.toggle input{width:20px;height:20px;accent-color:var(--cyan)}
+.info{
+  margin-top:12px; border:1px solid rgba(255,209,102,.22); background:rgba(255,209,102,.06);
+  border-radius:14px; padding:11px
+}
+.info h3{margin:0 0 7px;font-size:.92rem;color:#ffeab8}
+.info p{margin:0;color:var(--muted);font-size:.78rem;line-height:1.45}
+.bottom{
+  position:fixed; z-index:40; left:0; right:0; bottom:0;
+  padding:8px 9px var(--safe);
+  background:linear-gradient(180deg, transparent, rgba(7,17,31,.88) 20%, rgba(7,17,31,.98) 46%);
+  backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+}
+.bar{width:min(100%,780px);margin:auto;display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.action{min-height:56px;border:0;border-radius:15px;font-weight:950;background:#263754;color:var(--text)}
+.action.primary{background:var(--cyan);color:#06111d}
+.action.hot{background:var(--yellow);color:#1b1403}
+.action:disabled{opacity:.42}
+.action span{display:block}
+.action .ic{font-size:1.05rem;line-height:1}
+.action .tx{font-size:.7rem;margin-top:3px}
+
+@media(min-width:900px){
+  .app{padding:18px}
+  .layout{grid-template-columns:minmax(0,1fr) 370px;align-items:start}
+  .svg-wrap{height:calc(100vh - 210px);min-height:600px;max-height:none;aspect-ratio:auto}
+  .side{position:sticky;top:18px}
+  .bottom{position:static;background:none;backdrop-filter:none;padding:10px 0 0}
+  .bar{width:100%}
+}
+@media(orientation:landscape) and (max-height:560px){
+  .hero,.side{display:none}
+  .app{padding:6px 6px 82px}
+  .svg-wrap{height:calc(100vh - 78px);min-height:0;max-height:none;aspect-ratio:auto}
+  .action{min-height:49px}
+}
 </style>
 </head>
 <body>
 <main class="app">
-<header class="card hero">
-<div class="eyebrow">Arte + Matemática + Física</div>
-<h1>Cardioide Interativo</h1>
-<p class="sub">Veja cada segmento nascer de um ponto e viajar até o outro. Alterne entre <b>String Art</b> e <b>Feixe de luz</b>.</p>
-</header>
+  <header class="card hero">
+    <div class="eyebrow">Arte + Matemática + Física</div>
+    <h1>Cardioide Interativo</h1>
+    <p class="sub">
+      Compare duas ideias: <b>String Art</b> e <b>Reflexão da Luz</b>.
+      No modo reflexão, uma fonte luminosa fixa emite raios que batem na borda interna da circunferência e se refletem, como numa xícara, taça ou anel.
+    </p>
+  </header>
 
-<div class="layout">
-<section class="card stage">
-<div class="stage-head">
-<div><div class="status-label">Ligação atual</div><div id="movement" class="movement">1 → 2</div><div id="progress" class="progress">Passo 1 de 60</div></div>
-<div id="modeBadge" class="mode-badge">STRING ART</div>
-</div>
-<div class="svg-wrap"><svg id="svg" viewBox="0 0 900 900"></svg></div>
-</section>
+  <div class="layout">
+    <section class="card stage">
+      <div class="stage-head">
+        <div>
+          <div class="status-label">Etapa atual</div>
+          <div id="movement" class="movement">1 → 2</div>
+          <div id="progress" class="progress">Passo 1 de 60</div>
+        </div>
+        <div id="modeBadge" class="mode-badge">STRING ART</div>
+      </div>
+      <div class="svg-wrap"><svg id="svg" viewBox="0 0 900 900" aria-label="Construção do cardioide"></svg></div>
+    </section>
 
-<aside class="card side">
-<h2 class="section-title">Regra matemática</h2>
-<div class="formula">Para cada ponto <b>n</b>, ligamos:<br><br><b>n → 2n (módulo N)</b><br><br>Ex.: 1→2, 2→4, 3→6, 4→8...</div>
+    <aside class="card side">
+      <h2 class="section-title">Regra / interpretação</h2>
+      <div id="formulaBox" class="formula">
+        <b>String Art:</b> para cada ponto <b>n</b>, ligamos <b>n → 2n (módulo N)</b>.<br><br>
+        Ex.: 1→2, 2→4, 3→6, 4→8...
+      </div>
 
-<div class="controls">
-<div class="control"><label for="points">Número de pontos</label><output id="pointsOut">60</output><input id="points" type="range" min="12" max="160" step="1" value="60"></div>
-<div class="control"><label for="speed">Velocidade da animação</label><output id="speedOut">700 ms</output><input id="speed" type="range" min="120" max="2200" step="20" value="700"></div>
-<div class="control"><label>Modo de visualização</label><output id="modeOut">String Art</output><div class="segmented"><button id="stringMode" class="active">Linha / fio</button><button id="beamMode">Feixe de luz</button></div></div>
-<label class="toggle"><input id="showNumbers" type="checkbox" checked> Mostrar números ao redor do círculo</label>
-</div>
+      <div class="controls">
+        <div class="control">
+          <label for="points">Número de pontos</label>
+          <output id="pointsOut">60</output>
+          <input id="points" type="range" min="12" max="180" step="1" value="60">
+        </div>
 
-<div class="physics">
-<h3>Visualização física do feixe</h3>
-<div class="physics-grid">
-<div class="k">Diâmetro ilustrativo</div><div class="v">50 cm</div>
-<div class="k">Velocidade real da luz</div><div class="v">≈ 3×10⁸ m/s</div>
-<div class="k">Tempo para 50 cm</div><div class="v">≈ 1,67 ns</div>
-</div>
-<div class="note">A animação desacelera o feixe enormemente para que possamos enxergá-lo. Em uma distância desse tamanho, a luz chegaria praticamente de forma instantânea aos nossos olhos.</div>
-</div>
+        <div class="control">
+          <label for="speed">Velocidade da animação</label>
+          <output id="speedOut">800 ms</output>
+          <input id="speed" type="range" min="160" max="2400" step="20" value="800">
+        </div>
 
-<div class="bottom"><div class="bar">
-<button id="back" class="action"><span class="ic">←</span><span class="tx">Voltar</span></button>
-<button id="play" class="action primary"><span id="playIcon" class="ic">▶</span><span id="playText" class="tx">Iniciar</span></button>
-<button id="step" class="action hot"><span class="ic">＋</span><span class="tx">1 linha</span></button>
-<button id="reset" class="action"><span class="ic">↺</span><span class="tx">Reiniciar</span></button>
-</div></div>
-</aside>
-</div>
+        <div class="control">
+          <label>Modo de visualização</label>
+          <output id="modeOut">String Art</output>
+          <div class="segmented">
+            <button id="stringMode" class="active">Linha / fio</button>
+            <button id="reflectMode">Reflexão da luz</button>
+          </div>
+        </div>
+
+        <label class="toggle">
+          <input id="showNumbers" type="checkbox" checked>
+          Mostrar números ao redor do círculo
+        </label>
+      </div>
+
+      <div class="info">
+        <h3>Como pensar no feixe</h3>
+        <p id="infoText">
+          Uma fonte fixa fica na borda. Cada raio vai até um ponto da circunferência, rebate na parede interna e segue refletido. O conjunto desses raios refletidos gera a curva brilhante do cardioide.
+        </p>
+      </div>
+
+      <div class="bottom"><div class="bar">
+        <button id="back" class="action"><span class="ic">←</span><span class="tx">Voltar</span></button>
+        <button id="play" class="action primary"><span id="playIcon" class="ic">▶</span><span id="playText" class="tx">Iniciar</span></button>
+        <button id="step" class="action hot"><span class="ic">＋</span><span class="tx">1 etapa</span></button>
+        <button id="reset" class="action"><span class="ic">↺</span><span class="tx">Reiniciar</span></button>
+      </div></div>
+    </aside>
+  </div>
 </main>
 
 <script>
 (() => {
-const svg=document.getElementById('svg'),pointsInput=document.getElementById('points'),speedInput=document.getElementById('speed');
-const pointsOut=document.getElementById('pointsOut'),speedOut=document.getElementById('speedOut'),showNumbers=document.getElementById('showNumbers');
-const movement=document.getElementById('movement'),progress=document.getElementById('progress'),playBtn=document.getElementById('play'),playIcon=document.getElementById('playIcon'),playText=document.getElementById('playText');
-const stepBtn=document.getElementById('step'),backBtn=document.getElementById('back'),resetBtn=document.getElementById('reset');
-const stringModeBtn=document.getElementById('stringMode'),beamModeBtn=document.getElementById('beamMode'),modeBadge=document.getElementById('modeBadge'),modeOut=document.getElementById('modeOut');
+  const svg = document.getElementById('svg');
+  const pointsInput = document.getElementById('points');
+  const speedInput = document.getElementById('speed');
+  const pointsOut = document.getElementById('pointsOut');
+  const speedOut = document.getElementById('speedOut');
+  const showNumbers = document.getElementById('showNumbers');
+  const movement = document.getElementById('movement');
+  const progress = document.getElementById('progress');
+  const playBtn = document.getElementById('play');
+  const playIcon = document.getElementById('playIcon');
+  const playText = document.getElementById('playText');
+  const stepBtn = document.getElementById('step');
+  const backBtn = document.getElementById('back');
+  const resetBtn = document.getElementById('reset');
+  const stringModeBtn = document.getElementById('stringMode');
+  const reflectModeBtn = document.getElementById('reflectMode');
+  const modeBadge = document.getElementById('modeBadge');
+  const modeOut = document.getElementById('modeOut');
+  const formulaBox = document.getElementById('formulaBox');
+  const infoText = document.getElementById('infoText');
 
-const CX=450,CY=450,R=330,LABEL_R=384;
-let N=+pointsInput.value,current=0,mode='string',playing=false,animating=false,raf=null,animProgress=0,lastTs=null;
+  const CX = 450, CY = 450, R = 330, LABEL_R = 384;
+  let N = +pointsInput.value;
+  let current = 0;
+  let mode = 'string';
+  let playing = false;
+  let animating = false;
+  let raf = null;
+  let animProgress = 0;
+  let lastTs = null;
 
-function destination(i){const d=(2*i)%N;return d===0?N:d}
-function point(i,r=R){const a=-Math.PI/2+(i-1)*(2*Math.PI/N);return{x:CX+r*Math.cos(a),y:CY+r*Math.sin(a)}}
-function el(name,attrs={}){const n=document.createElementNS('http://www.w3.org/2000/svg',name);Object.entries(attrs).forEach(([k,v])=>n.setAttribute(k,v));return n}
-function idx(){return Math.min(current+1,N)}
-function labelSkip(){if(innerWidth<520)return N<=36?1:N<=72?2:N<=108?3:4;return N<=72?1:N<=110?2:3}
+  function el(name, attrs={}){
+    const n = document.createElementNS('http://www.w3.org/2000/svg', name);
+    for(const [k,v] of Object.entries(attrs)) n.setAttribute(k,v);
+    return n;
+  }
 
-function defs(){
-const d=el('defs');
-let f=el('filter',{id:'softGlow',x:'-30%',y:'-30%',width:'160%',height:'160%'});f.append(el('feGaussianBlur',{stdDeviation:'2.2',result:'b'}));let m=el('feMerge');m.append(el('feMergeNode',{in:'b'}));m.append(el('feMergeNode',{in:'SourceGraphic'}));f.append(m);d.append(f);
-f=el('filter',{id:'strongGlow',x:'-50%',y:'-50%',width:'200%',height:'200%'});f.append(el('feGaussianBlur',{stdDeviation:'6',result:'b'}));m=el('feMerge');m.append(el('feMergeNode',{in:'b'}));m.append(el('feMergeNode',{in:'SourceGraphic'}));f.append(m);d.append(f);
-const rg=el('radialGradient',{id:'photonGlow'});rg.append(el('stop',{offset:'0%','stop-color':'#fff','stop-opacity':'1'}));rg.append(el('stop',{offset:'30%','stop-color':'#fff0a6','stop-opacity':'1'}));rg.append(el('stop',{offset:'100%','stop-color':'#ffd166','stop-opacity':'0'}));d.append(rg);
-const lg=el('linearGradient',{id:'beamGradient',x1:'0%',y1:'0%',x2:'100%',y2:'0%'});lg.append(el('stop',{offset:'0%','stop-color':'#ffd166','stop-opacity':'.08'}));lg.append(el('stop',{offset:'74%','stop-color':'#ffd166','stop-opacity':'.28'}));lg.append(el('stop',{offset:'100%','stop-color':'#fff','stop-opacity':'1'}));d.append(lg);
-svg.append(d)
-}
+  function point(i, radius=R){
+    const a = -Math.PI/2 + (i-1)*(2*Math.PI/N);
+    return {x:CX + radius*Math.cos(a), y:CY + radius*Math.sin(a)};
+  }
 
-function render(){
-svg.innerHTML='';defs();svg.append(el('circle',{cx:CX,cy:CY,r:405,fill:'rgba(12,24,43,.28)'}));svg.append(el('circle',{cx:CX,cy:CY,r:R,class:'circle'}));
-for(let i=1;i<=current;i++){const a=point(i),b=point(destination(i));svg.append(el('line',{x1:a.x,y1:a.y,x2:b.x,y2:b.y,class:'edge-complete'}))}
-const i=idx(),a=point(i),b=point(destination(i));
-if(current<N&&animating){
- const x=a.x+(b.x-a.x)*animProgress,y=a.y+(b.y-a.y)*animProgress;
- svg.append(el('line',{x1:a.x,y1:a.y,x2:x,y2:y,class:mode==='beam'?'beam-trail':'active-path'}));
- if(mode==='beam'){svg.append(el('circle',{cx:x,cy:y,r:18,fill:'url(#photonGlow)'}));svg.append(el('circle',{cx:x,cy:y,r:4.2,fill:'#fff'}))}
-}
-for(let k=1;k<=N;k++){const p=point(k);let c='point';if(current<N&&k===i)c+=' start';if(current<N&&k===destination(i))c+=' end';svg.append(el('circle',{cx:p.x,cy:p.y,r:innerWidth<520?5:4.2,class:c}))}
-if(showNumbers.checked){const every=labelSkip();for(let k=1;k<=N;k++){if(k%every!==0&&k!==1&&k!==N)continue;const p=point(k,LABEL_R);let c='num';if(current<N&&k===i)c+=' start';if(current<N&&k===destination(i))c+=' end';const t=el('text',{x:p.x,y:p.y,class:c});t.textContent=k;svg.append(t)}}
-let t=el('text',{x:CX,y:CY-3,class:'centerTitle'});t.textContent=current>=N?'CARDIOIDE COMPLETO':'× 2';svg.append(t);
-t=el('text',{x:CX,y:CY+25,class:'centerSub'});t.textContent=`N = ${N} pontos`;svg.append(t);update()
-}
+  function sourcePoint(){
+    return point(1);
+  }
 
-function update(){
-if(current>=N){movement.textContent='Concluído';progress.textContent=`${N} linhas desenhadas`;stepBtn.disabled=true;playBtn.disabled=true;return}
-const i=current+1;movement.textContent=`${i} → ${destination(i)}`;progress.textContent=`Passo ${i} de ${N}`;stepBtn.disabled=animating;playBtn.disabled=false
-}
-function duration(){return +speedInput.value}
-function animateCurrent(done){
-if(animating||current>=N)return;animating=true;animProgress=0;lastTs=null;stepBtn.disabled=true;
-function frame(ts){if(lastTs===null)lastTs=ts;const dt=ts-lastTs;lastTs=ts;animProgress+=dt/duration();
-if(animProgress>=1){animProgress=1;render();cancelAnimationFrame(raf);raf=null;animating=false;current++;animProgress=0;render();if(done)done();return}
-render();raf=requestAnimationFrame(frame)}
-raf=requestAnimationFrame(frame)
-}
-function step(){if(!animating&&current<N)animateCurrent()}
-function loop(){if(!playing)return;if(current>=N){stopPlay();return}animateCurrent(()=>{if(playing)setTimeout(loop,60)})}
-function startPlay(){if(current>=N){current=0;render()}playing=true;playIcon.textContent='⏸';playText.textContent='Pausar';loop()}
-function stopPlay(){playing=false;playIcon.textContent='▶';playText.textContent='Iniciar'}
-function reset(){stopPlay();if(raf)cancelAnimationFrame(raf);raf=null;animating=false;animProgress=0;current=0;render()}
-function back(){stopPlay();if(animating){if(raf)cancelAnimationFrame(raf);raf=null;animating=false;animProgress=0;render();return}if(current>0){current--;render()}}
+  function destination(i){
+    const d = (2*i) % N;
+    return d === 0 ? N : d;
+  }
 
-playBtn.onclick=()=>playing?stopPlay():startPlay();stepBtn.onclick=step;backBtn.onclick=back;resetBtn.onclick=reset;
-pointsInput.oninput=()=>{N=+pointsInput.value;pointsOut.value=N;reset()};
-speedInput.oninput=()=>speedOut.value=`${speedInput.value} ms`;showNumbers.onchange=render;
-function setMode(m){mode=m;stringModeBtn.classList.toggle('active',m==='string');beamModeBtn.classList.toggle('active',m==='beam');modeBadge.textContent=m==='string'?'STRING ART':'FEIXE DE LUZ';modeOut.value=m==='string'?'String Art':'Feixe';render()}
-stringModeBtn.onclick=()=>setMode('string');beamModeBtn.onclick=()=>setMode('beam');
-let sx=null;svg.addEventListener('touchstart',e=>{if(e.touches.length===1)sx=e.touches[0].clientX},{passive:true});svg.addEventListener('touchend',e=>{if(sx===null)return;const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>55){dx<0?step():back()}sx=null},{passive:true});
-addEventListener('resize',render);pointsOut.value=N;speedOut.value=`${speedInput.value} ms`;render();
+  // usa pontos 2..N como pontos de reflexão para não coincidir com a fonte
+  function reflectionIndex(step){
+    const k = step + 2;
+    return k > N ? ((k-2)%N)+2 : k;
+  }
+
+  function labelSkip(){
+    if(window.innerWidth < 520){
+      return N<=36 ? 1 : N<=72 ? 2 : N<=108 ? 3 : 4;
+    }
+    return N<=72 ? 1 : N<=120 ? 2 : 3;
+  }
+
+  function circleVec(p){ return {x:p.x-CX, y:p.y-CY}; }
+  function norm(v){
+    const len = Math.hypot(v.x,v.y) || 1;
+    return {x:v.x/len, y:v.y/len};
+  }
+  function dot(a,b){ return a.x*b.x + a.y*b.y; }
+  function sub(a,b){ return {x:a.x-b.x, y:a.y-b.y}; }
+  function add(a,b){ return {x:a.x+b.x, y:a.y+b.y}; }
+  function mul(v,t){ return {x:v.x*t, y:v.y*t}; }
+
+  function reflectRay(P, S){
+    const d = norm(sub(P, S));      // direção incidente: da fonte para o ponto
+    const n = norm(circleVec(P));   // normal da circunferência
+    const ddn = dot(d,n);
+    const r = { x: d.x - 2*ddn*n.x, y: d.y - 2*ddn*n.y };
+    return norm(r);
+  }
+
+  function nextIntersectionOnCircle(P, dir){
+    const p = circleVec(P);
+    const a = dot(dir,dir);
+    const b = 2 * dot(p, dir);
+    const t = -b / a; // porque |p|^2 = R^2
+    return add(P, mul(dir, t));
+  }
+
+  function lineIntersection(P1, d1, P2, d2){
+    const cross = d1.x*d2.y - d1.y*d2.x;
+    if(Math.abs(cross) < 1e-6) return null;
+    const diff = sub(P2, P1);
+    const t = (diff.x*d2.y - diff.y*d2.x) / cross;
+    return add(P1, mul(d1, t));
+  }
+
+  function prepareDefs(){
+    const defs = el('defs');
+
+    let f = el('filter',{id:'softGlow',x:'-30%',y:'-30%',width:'160%',height:'160%'});
+    f.append(el('feGaussianBlur',{stdDeviation:'2.3',result:'b'}));
+    let m = el('feMerge');
+    m.append(el('feMergeNode',{in:'b'}));
+    m.append(el('feMergeNode',{in:'SourceGraphic'}));
+    f.append(m); defs.append(f);
+
+    f = el('filter',{id:'strongGlow',x:'-60%',y:'-60%',width:'220%',height:'220%'});
+    f.append(el('feGaussianBlur',{stdDeviation:'7',result:'b'}));
+    m = el('feMerge');
+    m.append(el('feMergeNode',{in:'b'}));
+    m.append(el('feMergeNode',{in:'SourceGraphic'}));
+    f.append(m); defs.append(f);
+
+    const rg = el('radialGradient',{id:'photonGlow'});
+    rg.append(el('stop',{offset:'0%','stop-color':'#fff','stop-opacity':'1'}));
+    rg.append(el('stop',{offset:'30%','stop-color':'#fff0a6','stop-opacity':'1'}));
+    rg.append(el('stop',{offset:'100%','stop-color':'#ffd166','stop-opacity':'0'}));
+    defs.append(rg);
+
+    const lg = el('linearGradient',{id:'beamGradient',x1:'0%',y1:'0%',x2:'100%',y2:'0%'});
+    lg.append(el('stop',{offset:'0%','stop-color':'#ffd166','stop-opacity':'.08'}));
+    lg.append(el('stop',{offset:'80%','stop-color':'#ffd166','stop-opacity':'.30'}));
+    lg.append(el('stop',{offset:'100%','stop-color':'#ffffff','stop-opacity':'1'}));
+    defs.append(lg);
+
+    svg.append(defs);
+  }
+
+  function drawPartialLine(a,b,p,klass){
+    const x = a.x + (b.x-a.x)*p;
+    const y = a.y + (b.y-a.y)*p;
+    svg.append(el('line',{x1:a.x,y1:a.y,x2:x,y2:y,class:klass}));
+    return {x,y};
+  }
+
+  function setTexts(){
+    if(mode === 'string'){
+      formulaBox.innerHTML = '<b>String Art:</b> para cada ponto <b>n</b>, ligamos <b>n → 2n (módulo N)</b>.<br><br>Ex.: 1→2, 2→4, 3→6, 4→8...';
+      infoText.textContent = 'Cada segmento reto é acrescentado um a um. O conjunto desses segmentos forma visualmente o cardioide.';
+    } else {
+      formulaBox.innerHTML = '<b>Reflexão da luz:</b> uma fonte fixa na borda emite raios. Cada raio incide na parede circular, obedece à lei da reflexão e segue rebatido dentro da circunferência.';
+      infoText.textContent = 'Pense numa xícara, taça ou anel iluminado: os raios batem na borda interna e se refletem. A família desses raios refletidos cria a curva brilhante chamada cardioide.';
+    }
+  }
+
+  function render(){
+    svg.innerHTML = '';
+    prepareDefs();
+    setTexts();
+
+    svg.append(el('circle',{cx:CX,cy:CY,r:405,fill:'rgba(12,24,43,.28)'}));
+    svg.append(el('circle',{cx:CX,cy:CY,r:R,class:'circle'}));
+
+    if(mode === 'string') renderString();
+    else renderReflection();
+
+    updateStatus();
+  }
+
+  function renderString(){
+    for(let i=1;i<=current;i++){
+      const a = point(i), b = point(destination(i));
+      svg.append(el('line',{x1:a.x,y1:a.y,x2:b.x,y2:b.y,stroke:'#73dff0','stroke-width':'1.05','stroke-opacity':'.26'}));
+    }
+
+    const idx = Math.min(current+1, N);
+    const a = point(idx), b = point(destination(idx));
+    if(current < N && animating){
+      drawPartialLine(a,b,animProgress,'activePath');
+      const x = a.x + (b.x-a.x)*animProgress;
+      const y = a.y + (b.y-a.y)*animProgress;
+      svg.append(el('circle',{cx:x,cy:y,r:5.2,fill:'#ffd166',filter:'url(#softGlow)'}));
+    }
+
+    for(let i=1;i<=N;i++){
+      const p = point(i);
+      let fill = '#edf5ff';
+      if(current < N && i===idx) fill = '#ffd166';
+      if(current < N && i===destination(idx)) fill = '#7cf0ad';
+      svg.append(el('circle',{cx:p.x,cy:p.y,r:window.innerWidth<520?5:4.2,fill:fill,stroke:'#081322','stroke-width':'1.2'}));
+    }
+
+    if(showNumbers.checked){
+      const every = labelSkip();
+      for(let i=1;i<=N;i++){
+        if(i%every!==0 && i!==1 && i!==N) continue;
+        const p = point(i,LABEL_R);
+        let color = '#a9b9d1', size = '11';
+        if(current < N && i===idx){ color='#ffd166'; size='14'; }
+        if(current < N && i===destination(idx)){ color='#7cf0ad'; size='14'; }
+        const t = el('text',{x:p.x,y:p.y,fill:color,'font-size':size,'font-weight':'800','text-anchor':'middle','dominant-baseline':'middle'});
+        t.textContent = i; svg.append(t);
+      }
+    }
+
+    const title = el('text',{x:CX,y:CY-3,fill:'#d9e5f8','font-size':'17','text-anchor':'middle','font-weight':'950'});
+    title.textContent = current>=N ? 'CARDIOIDE COMPLETO' : '× 2';
+    svg.append(title);
+    const sub = el('text',{x:CX,y:CY+25,fill:'#8194b4','font-size':'12','text-anchor':'middle'});
+    sub.textContent = `N = ${N} pontos`;
+    svg.append(sub);
+  }
+
+  function renderReflection(){
+    const S = sourcePoint();
+    // fonte fixa
+    svg.append(el('circle',{cx:S.x,cy:S.y,r:20,fill:'url(#photonGlow)',opacity:'0.95'}));
+    svg.append(el('circle',{cx:S.x,cy:S.y,r:5.5,fill:'#fff'}));
+
+    const rays = [];
+    for(let step=0; step<current; step++){
+      const refIdx = reflectionIndex(step);
+      const P = point(refIdx);
+      const r = reflectRay(P, S);
+      const Q = nextIntersectionOnCircle(P, r);
+      rays.push({P,r,Q,refIdx});
+      // raio incidente já feito
+      svg.append(el('line',{x1:S.x,y1:S.y,x2:P.x,y2:P.y,stroke:'#ffe7a7','stroke-width':'0.9','stroke-opacity':'.12'}));
+      // raio refletido acumulado
+      svg.append(el('line',{x1:P.x,y1:P.y,x2:Q.x,y2:Q.y,stroke:'#73dff0','stroke-width':'1.0','stroke-opacity':'.20'}));
+    }
+
+    // envelope (caústica) aproximado por interseções de raios consecutivos
+    if(rays.length >= 2){
+      const pts = [];
+      for(let i=0;i<rays.length-1;i++){
+        const A = rays[i], B = rays[i+1];
+        const X = lineIntersection(A.P, A.r, B.P, B.r);
+        if(X){
+          const d = Math.hypot(X.x-CX, X.y-CY);
+          if(d < R+6) pts.push(X);
+        }
+      }
+      if(pts.length > 1){
+        let d = `M ${pts[0].x} ${pts[0].y}`;
+        for(let i=1;i<pts.length;i++) d += ` L ${pts[i].x} ${pts[i].y}`;
+        svg.append(el('path',{d:d,fill:'none',stroke:'#ff8bd3','stroke-width':'2.3','stroke-linecap':'round','stroke-linejoin':'round',filter:'url(#softGlow)',opacity:'0.95'}));
+      }
+    }
+
+    // etapa atual com duas fases: incidência e reflexão
+    if(current < N-1 && animating){
+      const refIdx = reflectionIndex(current);
+      const P = point(refIdx);
+      const r = reflectRay(P, S);
+      const Q = nextIntersectionOnCircle(P, r);
+
+      const phase1 = 0.46;
+      const phase2 = 0.54;
+
+      let head = S;
+      if(animProgress < phase1){
+        const p = animProgress / phase1;
+        head = drawPartialLine(S,P,p,'beamInc');
+      } else {
+        svg.append(el('line',{x1:S.x,y1:S.y,x2:P.x,y2:P.y,class:'beamInc'}));
+        if(animProgress < phase2){
+          head = P;
+        } else {
+          const p = (animProgress-phase2) / (1-phase2);
+          head = drawPartialLine(P,Q,p,'beamRef');
+        }
+      }
+
+      svg.append(el('circle',{cx:head.x,cy:head.y,r:17,fill:'url(#photonGlow)',opacity:'0.95'}));
+      svg.append(el('circle',{cx:head.x,cy:head.y,r:4.2,fill:'#ffffff'}));
+
+      // normal/tangente discretas no ponto atual
+      const n = norm(circleVec(P));
+      const t = {x:-n.y,y:n.x};
+      const L = 26;
+      svg.append(el('line',{x1:P.x-L*t.x,y1:P.y-L*t.y,x2:P.x+L*t.x,y2:P.y+L*t.y,stroke:'#ffffff','stroke-width':'1','stroke-opacity':'.35','stroke-dasharray':'5 5'}));
+    }
+
+    // pontos
+    const activeIdx = current < N-1 ? reflectionIndex(current) : null;
+    for(let i=1;i<=N;i++){
+      const p = point(i);
+      let fill = '#edf5ff';
+      if(i===1) fill = '#ffd166';
+      if(activeIdx && i===activeIdx) fill = '#7cf0ad';
+      svg.append(el('circle',{cx:p.x,cy:p.y,r:window.innerWidth<520?5:4.2,fill:fill,stroke:'#081322','stroke-width':'1.2'}));
+    }
+
+    if(showNumbers.checked){
+      const every = labelSkip();
+      for(let i=1;i<=N;i++){
+        if(i%every!==0 && i!==1 && i!==N) continue;
+        const p = point(i,LABEL_R);
+        let color = '#a9b9d1', size = '11';
+        if(i===1){ color='#ffd166'; size='14'; }
+        if(activeIdx && i===activeIdx){ color='#7cf0ad'; size='14'; }
+        const t = el('text',{x:p.x,y:p.y,fill:color,'font-size':size,'font-weight':'800','text-anchor':'middle','dominant-baseline':'middle'});
+        t.textContent = i; svg.append(t);
+      }
+    }
+
+    const title = el('text',{x:CX,y:CY-3,fill:'#d9e5f8','font-size':'17','text-anchor':'middle','font-weight':'950'});
+    title.textContent = current>=N-1 ? 'REFLEXÕES COMPLETAS' : 'FONTE + RAIOS REFLETIDOS';
+    svg.append(title);
+    const sub = el('text',{x:CX,y:CY+25,fill:'#8194b4','font-size':'12','text-anchor':'middle'});
+    sub.textContent = `Fonte no ponto 1 • N = ${N}`;
+    svg.append(sub);
+  }
+
+  function updateStatus(){
+    if(mode === 'string'){
+      if(current >= N){
+        movement.textContent = 'Concluído';
+        progress.textContent = `${N} linhas desenhadas`;
+        stepBtn.disabled = true; playBtn.disabled = true; return;
+      }
+      const i = current+1;
+      movement.textContent = `${i} → ${destination(i)}`;
+      progress.textContent = `Passo ${i} de ${N}`;
+    } else {
+      if(current >= N-1){
+        movement.textContent = 'Concluído';
+        progress.textContent = `${N-1} reflexões desenhadas`;
+        stepBtn.disabled = true; playBtn.disabled = true; return;
+      }
+      const refIdx = reflectionIndex(current);
+      movement.textContent = `Fonte → ${refIdx} → reflexão`;
+      progress.textContent = `Raio ${current+1} de ${N-1}`;
+    }
+    stepBtn.disabled = animating;
+    playBtn.disabled = false;
+  }
+
+  function duration(){ return +speedInput.value; }
+
+  function maxSteps(){ return mode === 'string' ? N : N-1; }
+
+  function animateCurrent(done){
+    if(animating || current >= maxSteps()) return;
+    animating = true;
+    animProgress = 0;
+    lastTs = null;
+    stepBtn.disabled = true;
+
+    function frame(ts){
+      if(lastTs === null) lastTs = ts;
+      const dt = ts - lastTs;
+      lastTs = ts;
+      animProgress += dt / duration();
+
+      if(animProgress >= 1){
+        animProgress = 1;
+        render();
+        cancelAnimationFrame(raf);
+        raf = null;
+        animating = false;
+        current++;
+        animProgress = 0;
+        render();
+        if(done) done();
+        return;
+      }
+      render();
+      raf = requestAnimationFrame(frame);
+    }
+    raf = requestAnimationFrame(frame);
+  }
+
+  function step(){ if(!animating && current < maxSteps()) animateCurrent(); }
+
+  function loop(){
+    if(!playing) return;
+    if(current >= maxSteps()){ stopPlay(); return; }
+    animateCurrent(() => { if(playing) setTimeout(loop, 65); });
+  }
+
+  function startPlay(){
+    if(current >= maxSteps()){ current = 0; render(); }
+    playing = true;
+    playIcon.textContent = '⏸';
+    playText.textContent = 'Pausar';
+    loop();
+  }
+
+  function stopPlay(){
+    playing = false;
+    playIcon.textContent = '▶';
+    playText.textContent = 'Iniciar';
+  }
+
+  function reset(){
+    stopPlay();
+    if(raf) cancelAnimationFrame(raf);
+    raf = null;
+    animating = false;
+    animProgress = 0;
+    current = 0;
+    render();
+  }
+
+  function back(){
+    stopPlay();
+    if(animating){
+      if(raf) cancelAnimationFrame(raf);
+      raf = null;
+      animating = false;
+      animProgress = 0;
+      render();
+      return;
+    }
+    if(current > 0){
+      current--;
+      render();
+    }
+  }
+
+  function setMode(next){
+    mode = next;
+    stringModeBtn.classList.toggle('active', mode==='string');
+    reflectModeBtn.classList.toggle('active', mode==='reflect');
+    modeBadge.textContent = mode==='string' ? 'STRING ART' : 'REFLEXÃO DA LUZ';
+    modeOut.value = mode==='string' ? 'String Art' : 'Reflexão';
+    reset();
+  }
+
+  playBtn.onclick = () => playing ? stopPlay() : startPlay();
+  stepBtn.onclick = step;
+  backBtn.onclick = back;
+  resetBtn.onclick = reset;
+
+  pointsInput.oninput = () => { N = +pointsInput.value; pointsOut.value = N; reset(); };
+  speedInput.oninput = () => { speedOut.value = `${speedInput.value} ms`; };
+  showNumbers.onchange = render;
+
+  stringModeBtn.onclick = () => setMode('string');
+  reflectModeBtn.onclick = () => setMode('reflect');
+
+  let sx = null;
+  svg.addEventListener('touchstart', e => {
+    if(e.touches.length === 1) sx = e.touches[0].clientX;
+  }, {passive:true});
+  svg.addEventListener('touchend', e => {
+    if(sx === null) return;
+    const dx = e.changedTouches[0].clientX - sx;
+    if(Math.abs(dx) > 55){
+      if(dx < 0) step();
+      else back();
+    }
+    sx = null;
+  }, {passive:true});
+
+  window.addEventListener('resize', render);
+
+  // estilos SVG via <style> inline no documento
+  const svgStyle = document.createElementNS('http://www.w3.org/2000/svg','style');
+  svgStyle.textContent = `
+    .activePath{fill:none;stroke:#ffd166;stroke-width:3.4;stroke-linecap:round;vector-effect:non-scaling-stroke;filter:url(#softGlow)}
+    .beamInc{fill:none;stroke:#ffe7a7;stroke-width:2.1;stroke-linecap:round;stroke-opacity:.95;filter:url(#softGlow)}
+    .beamRef{fill:none;stroke:url(#beamGradient);stroke-width:6.6;stroke-linecap:round;filter:url(#strongGlow)}
+  `;
+
+  const oldPrepare = prepareDefs;
+  prepareDefs = function(){ oldPrepare(); svg.querySelector('defs').append(svgStyle.cloneNode(true)); };
+
+  pointsOut.value = N;
+  speedOut.value = `${speedInput.value} ms`;
+  render();
 })();
 </script>
 </body>
