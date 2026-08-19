@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#07111f">
-<title>Cardioide Interativo — String Art e Reflexão da Luz</title>
+<title>Cardioide Interativo — String Art, Raio e Onda</title>
 <style>
 :root{
-  --bg:#07111f; --panel:#0f1b31; --text:#f4f8ff; --muted:#9fb0cc;
+  --bg:#07111f; --text:#f4f8ff; --muted:#9fb0cc;
   --cyan:#62e8ff; --yellow:#ffd166; --green:#7cf0ad; --pink:#ff8bd3;
   --border:rgba(255,255,255,.10); --safe:max(10px, env(safe-area-inset-bottom));
 }
@@ -36,7 +36,7 @@ h1{margin:0;font-size:clamp(1.42rem,6.3vw,2.48rem);line-height:1.04}
 .stage{overflow:hidden}
 .stage-head{padding:10px 12px 0;display:flex;gap:10px;justify-content:space-between;align-items:flex-start}
 .status-label{color:var(--muted);text-transform:uppercase;font-size:.64rem;letter-spacing:.10em;font-weight:900}
-.movement{font-size:clamp(1.28rem,7vw,2.08rem);color:var(--yellow);font-weight:950;line-height:1.05;margin-top:2px}
+.movement{font-size:clamp(1.24rem,6.8vw,2.06rem);color:var(--yellow);font-weight:950;line-height:1.05;margin-top:2px}
 .progress{color:var(--muted);font-size:.78rem;margin-top:3px}
 .mode-badge{border:1px solid rgba(98,232,255,.24);background:rgba(98,232,255,.08);color:var(--cyan);font-weight:850;font-size:.74rem;padding:8px 10px;border-radius:999px}
 .svg-wrap{width:100%;aspect-ratio:1/1;min-height:320px;max-height:74vh;padding:0 4px 5px}
@@ -54,7 +54,7 @@ svg{width:100%;height:100%;display:block;touch-action:none}
 .control label{font-size:.88rem;font-weight:800}
 .control output{color:var(--cyan);font-weight:950}
 .control input[type=range]{grid-column:1/-1;width:100%;height:34px;accent-color:var(--cyan)}
-.segmented{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.segmented{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
 .segmented button{
   min-height:44px; border:1px solid var(--border); border-radius:12px;
   color:var(--text); background:#1a2943; font-weight:850
@@ -82,10 +82,9 @@ svg{width:100%;height:100%;display:block;touch-action:none}
 .action span{display:block}
 .action .ic{font-size:1.05rem;line-height:1}
 .action .tx{font-size:.7rem;margin-top:3px}
-
 @media(min-width:900px){
   .app{padding:18px}
-  .layout{grid-template-columns:minmax(0,1fr) 370px;align-items:start}
+  .layout{grid-template-columns:minmax(0,1fr) 380px;align-items:start}
   .svg-wrap{height:calc(100vh - 210px);min-height:600px;max-height:none;aspect-ratio:auto}
   .side{position:sticky;top:18px}
   .bottom{position:static;background:none;backdrop-filter:none;padding:10px 0 0}
@@ -105,8 +104,8 @@ svg{width:100%;height:100%;display:block;touch-action:none}
     <div class="eyebrow">Arte + Matemática + Física</div>
     <h1>Cardioide Interativo</h1>
     <p class="sub">
-      Compare duas ideias: <b>String Art</b> e <b>Reflexão da Luz</b>.
-      No modo reflexão, uma fonte luminosa fixa emite raios que batem na borda interna da circunferência e se refletem, como numa xícara, taça ou anel.
+      Compare três leituras: <b>String Art</b>, <b>Raio único refletido</b> e <b>Onda com vários raios</b>.
+      No modo onda, a luz se comporta como uma circunferência que cresce a partir da fonte e, ao tocar a borda, gera vários raios refletidos.
     </p>
   </header>
 
@@ -125,10 +124,7 @@ svg{width:100%;height:100%;display:block;touch-action:none}
 
     <aside class="card side">
       <h2 class="section-title">Regra / interpretação</h2>
-      <div id="formulaBox" class="formula">
-        <b>String Art:</b> para cada ponto <b>n</b>, ligamos <b>n → 2n (módulo N)</b>.<br><br>
-        Ex.: 1→2, 2→4, 3→6, 4→8...
-      </div>
+      <div id="formulaBox" class="formula"></div>
 
       <div class="controls">
         <div class="control">
@@ -147,8 +143,9 @@ svg{width:100%;height:100%;display:block;touch-action:none}
           <label>Modo de visualização</label>
           <output id="modeOut">String Art</output>
           <div class="segmented">
-            <button id="stringMode" class="active">Linha / fio</button>
-            <button id="reflectMode">Reflexão da luz</button>
+            <button id="stringMode" class="active">String</button>
+            <button id="reflectMode">Raio</button>
+            <button id="waveMode">Onda</button>
           </div>
         </div>
 
@@ -159,10 +156,8 @@ svg{width:100%;height:100%;display:block;touch-action:none}
       </div>
 
       <div class="info">
-        <h3>Como pensar no feixe</h3>
-        <p id="infoText">
-          Uma fonte fixa fica na borda. Cada raio vai até um ponto da circunferência, rebate na parede interna e segue refletido. O conjunto desses raios refletidos gera a curva brilhante do cardioide.
-        </p>
+        <h3>Leitura física</h3>
+        <p id="infoText"></p>
       </div>
 
       <div class="bottom"><div class="bar">
@@ -193,6 +188,7 @@ svg{width:100%;height:100%;display:block;touch-action:none}
   const resetBtn = document.getElementById('reset');
   const stringModeBtn = document.getElementById('stringMode');
   const reflectModeBtn = document.getElementById('reflectMode');
+  const waveModeBtn = document.getElementById('waveMode');
   const modeBadge = document.getElementById('modeBadge');
   const modeOut = document.getElementById('modeOut');
   const formulaBox = document.getElementById('formulaBox');
@@ -201,7 +197,7 @@ svg{width:100%;height:100%;display:block;touch-action:none}
   const CX = 450, CY = 450, R = 330, LABEL_R = 384;
   let N = +pointsInput.value;
   let current = 0;
-  let mode = 'string';
+  let mode = 'string'; // string | reflect | wave
   let playing = false;
   let animating = false;
   let raf = null;
@@ -213,84 +209,64 @@ svg{width:100%;height:100%;display:block;touch-action:none}
     for(const [k,v] of Object.entries(attrs)) n.setAttribute(k,v);
     return n;
   }
-
   function point(i, radius=R){
     const a = -Math.PI/2 + (i-1)*(2*Math.PI/N);
     return {x:CX + radius*Math.cos(a), y:CY + radius*Math.sin(a)};
   }
-
-  function sourcePoint(){
-    return point(1);
-  }
-
-  function destination(i){
-    const d = (2*i) % N;
-    return d === 0 ? N : d;
-  }
-
-  // usa pontos 2..N como pontos de reflexão para não coincidir com a fonte
+  function sourcePoint(){ return point(1); }
+  function destination(i){ const d=(2*i)%N; return d===0?N:d; }
   function reflectionIndex(step){
     const k = step + 2;
     return k > N ? ((k-2)%N)+2 : k;
   }
-
   function labelSkip(){
-    if(window.innerWidth < 520){
-      return N<=36 ? 1 : N<=72 ? 2 : N<=108 ? 3 : 4;
-    }
+    if(window.innerWidth < 520) return N<=36 ? 1 : N<=72 ? 2 : N<=108 ? 3 : 4;
     return N<=72 ? 1 : N<=120 ? 2 : 3;
   }
 
-  function circleVec(p){ return {x:p.x-CX, y:p.y-CY}; }
-  function norm(v){
-    const len = Math.hypot(v.x,v.y) || 1;
-    return {x:v.x/len, y:v.y/len};
-  }
   function dot(a,b){ return a.x*b.x + a.y*b.y; }
   function sub(a,b){ return {x:a.x-b.x, y:a.y-b.y}; }
   function add(a,b){ return {x:a.x+b.x, y:a.y+b.y}; }
   function mul(v,t){ return {x:v.x*t, y:v.y*t}; }
+  function norm(v){ const len=Math.hypot(v.x,v.y)||1; return {x:v.x/len, y:v.y/len}; }
+  function circleVec(p){ return {x:p.x-CX, y:p.y-CY}; }
+  function dist(a,b){ return Math.hypot(a.x-b.x, a.y-b.y); }
 
   function reflectRay(P, S){
-    const d = norm(sub(P, S));      // direção incidente: da fonte para o ponto
-    const n = norm(circleVec(P));   // normal da circunferência
+    const d = norm(sub(P,S));
+    const n = norm(circleVec(P));
     const ddn = dot(d,n);
-    const r = { x: d.x - 2*ddn*n.x, y: d.y - 2*ddn*n.y };
-    return norm(r);
+    return norm({x:d.x - 2*ddn*n.x, y:d.y - 2*ddn*n.y});
   }
-
   function nextIntersectionOnCircle(P, dir){
     const p = circleVec(P);
     const a = dot(dir,dir);
-    const b = 2 * dot(p, dir);
-    const t = -b / a; // porque |p|^2 = R^2
-    return add(P, mul(dir, t));
+    const b = 2*dot(p,dir);
+    const t = -b/a;
+    return add(P, mul(dir,t));
   }
-
   function lineIntersection(P1, d1, P2, d2){
     const cross = d1.x*d2.y - d1.y*d2.x;
     if(Math.abs(cross) < 1e-6) return null;
-    const diff = sub(P2, P1);
+    const diff = sub(P2,P1);
     const t = (diff.x*d2.y - diff.y*d2.x) / cross;
-    return add(P1, mul(d1, t));
+    return add(P1, mul(d1,t));
   }
 
   function prepareDefs(){
     const defs = el('defs');
 
     let f = el('filter',{id:'softGlow',x:'-30%',y:'-30%',width:'160%',height:'160%'});
-    f.append(el('feGaussianBlur',{stdDeviation:'2.3',result:'b'}));
+    f.append(el('feGaussianBlur',{stdDeviation:'2.2',result:'b'}));
     let m = el('feMerge');
-    m.append(el('feMergeNode',{in:'b'}));
-    m.append(el('feMergeNode',{in:'SourceGraphic'}));
-    f.append(m); defs.append(f);
+    m.append(el('feMergeNode',{in:'b'})); m.append(el('feMergeNode',{in:'SourceGraphic'})); f.append(m);
+    defs.append(f);
 
     f = el('filter',{id:'strongGlow',x:'-60%',y:'-60%',width:'220%',height:'220%'});
     f.append(el('feGaussianBlur',{stdDeviation:'7',result:'b'}));
     m = el('feMerge');
-    m.append(el('feMergeNode',{in:'b'}));
-    m.append(el('feMergeNode',{in:'SourceGraphic'}));
-    f.append(m); defs.append(f);
+    m.append(el('feMergeNode',{in:'b'})); m.append(el('feMergeNode',{in:'SourceGraphic'})); f.append(m);
+    defs.append(f);
 
     const rg = el('radialGradient',{id:'photonGlow'});
     rg.append(el('stop',{offset:'0%','stop-color':'#fff','stop-opacity':'1'}));
@@ -298,349 +274,304 @@ svg{width:100%;height:100%;display:block;touch-action:none}
     rg.append(el('stop',{offset:'100%','stop-color':'#ffd166','stop-opacity':'0'}));
     defs.append(rg);
 
-    const lg = el('linearGradient',{id:'beamGradient',x1:'0%',y1:'0%',x2:'100%',y2:'0%'});
-    lg.append(el('stop',{offset:'0%','stop-color':'#ffd166','stop-opacity':'.08'}));
-    lg.append(el('stop',{offset:'80%','stop-color':'#ffd166','stop-opacity':'.30'}));
-    lg.append(el('stop',{offset:'100%','stop-color':'#ffffff','stop-opacity':'1'}));
-    defs.append(lg);
-
     svg.append(defs);
   }
 
-  function drawPartialLine(a,b,p,klass){
-    const x = a.x + (b.x-a.x)*p;
-    const y = a.y + (b.y-a.y)*p;
-    svg.append(el('line',{x1:a.x,y1:a.y,x2:x,y2:y,class:klass}));
-    return {x,y};
-  }
-
   function setTexts(){
-    if(mode === 'string'){
+    if(mode==='string'){
       formulaBox.innerHTML = '<b>String Art:</b> para cada ponto <b>n</b>, ligamos <b>n → 2n (módulo N)</b>.<br><br>Ex.: 1→2, 2→4, 3→6, 4→8...';
       infoText.textContent = 'Cada segmento reto é acrescentado um a um. O conjunto desses segmentos forma visualmente o cardioide.';
-    } else {
-      formulaBox.innerHTML = '<b>Reflexão da luz:</b> uma fonte fixa na borda emite raios. Cada raio incide na parede circular, obedece à lei da reflexão e segue rebatido dentro da circunferência.';
-      infoText.textContent = 'Pense numa xícara, taça ou anel iluminado: os raios batem na borda interna e se refletem. A família desses raios refletidos cria a curva brilhante chamada cardioide.';
+    }else if(mode==='reflect'){
+      formulaBox.innerHTML = '<b>Raio único:</b> uma fonte fixa emite um raio que atinge a parede circular, obedece à lei da reflexão e segue rebatido dentro da circunferência.';
+      infoText.textContent = 'Pense em um único raio de luz: ele sai da fonte, bate na borda interna e se reflete. A família de todos esses raios produz a curva brilhante do cardioide.';
+    }else{
+      formulaBox.innerHTML = '<b>Onda com vários raios:</b> a luz é tratada como uma frente de onda circular que cresce a partir da fonte. Quando a frente toca a borda, vários pontos de contato geram raios refletidos.';
+      infoText.textContent = 'Esse modo aproxima a ideia física de uma xícara, anel ou taça iluminada: uma onda se expande e, ao encostar na borda, produz muitos ricochetes. O envelope desses raios refletidos forma o cardioide.';
     }
   }
 
-  function render(){
-    svg.innerHTML = '';
-    prepareDefs();
-    setTexts();
-
+  function drawBaseCircle(){
     svg.append(el('circle',{cx:CX,cy:CY,r:405,fill:'rgba(12,24,43,.28)'}));
-    svg.append(el('circle',{cx:CX,cy:CY,r:R,class:'circle'}));
+    svg.append(el('circle',{cx:CX,cy:CY,r:R,fill:'rgba(4,10,20,.46)',stroke:'#526b92','stroke-width':'1.4'}));
+  }
 
-    if(mode === 'string') renderString();
-    else renderReflection();
+  function drawNumbers(activeA=null, activeB=null, source=false){
+    if(!showNumbers.checked) return;
+    const every = labelSkip();
+    for(let i=1;i<=N;i++){
+      if(i%every!==0 && i!==1 && i!==N) continue;
+      const p = point(i, LABEL_R);
+      let color='#a9b9d1', size='11';
+      if(source && i===1){ color='#ffd166'; size='14'; }
+      if(activeA!==null && i===activeA){ color='#ffd166'; size='14'; }
+      if(activeB!==null && i===activeB){ color='#7cf0ad'; size='14'; }
+      const t = el('text',{x:p.x,y:p.y,fill:color,'font-size':size,'font-weight':'800','text-anchor':'middle','dominant-baseline':'middle'});
+      t.textContent = i;
+      svg.append(t);
+    }
+  }
 
-    updateStatus();
+  function drawCausticFromRays(rays){
+    if(rays.length < 2) return;
+    const pts = [];
+    for(let i=0;i<rays.length-1;i++){
+      const A = rays[i], B = rays[i+1];
+      const X = lineIntersection(A.P, A.r, B.P, B.r);
+      if(X){
+        const d = Math.hypot(X.x-CX, X.y-CY);
+        if(d < R+6) pts.push(X);
+      }
+    }
+    if(pts.length > 1){
+      let d = `M ${pts[0].x} ${pts[0].y}`;
+      for(let i=1;i<pts.length;i++) d += ` L ${pts[i].x} ${pts[i].y}`;
+      svg.append(el('path',{
+        d, fill:'none', stroke:'#ff8bd3', 'stroke-width':'2.3',
+        'stroke-linecap':'round', 'stroke-linejoin':'round',
+        filter:'url(#softGlow)', opacity:'0.96'
+      }));
+    }
   }
 
   function renderString(){
     for(let i=1;i<=current;i++){
-      const a = point(i), b = point(destination(i));
+      const a=point(i), b=point(destination(i));
       svg.append(el('line',{x1:a.x,y1:a.y,x2:b.x,y2:b.y,stroke:'#73dff0','stroke-width':'1.05','stroke-opacity':'.26'}));
     }
-
     const idx = Math.min(current+1, N);
-    const a = point(idx), b = point(destination(idx));
+    const a=point(idx), b=point(destination(idx));
     if(current < N && animating){
-      drawPartialLine(a,b,animProgress,'activePath');
       const x = a.x + (b.x-a.x)*animProgress;
       const y = a.y + (b.y-a.y)*animProgress;
+      svg.append(el('line',{x1:a.x,y1:a.y,x2:x,y2:y,stroke:'#ffd166','stroke-width':'3.4','stroke-linecap':'round',filter:'url(#softGlow)'}));
       svg.append(el('circle',{cx:x,cy:y,r:5.2,fill:'#ffd166',filter:'url(#softGlow)'}));
     }
 
     for(let i=1;i<=N;i++){
-      const p = point(i);
-      let fill = '#edf5ff';
-      if(current < N && i===idx) fill = '#ffd166';
-      if(current < N && i===destination(idx)) fill = '#7cf0ad';
-      svg.append(el('circle',{cx:p.x,cy:p.y,r:window.innerWidth<520?5:4.2,fill:fill,stroke:'#081322','stroke-width':'1.2'}));
+      const p=point(i);
+      let fill='#edf5ff';
+      if(current < N && i===idx) fill='#ffd166';
+      if(current < N && i===destination(idx)) fill='#7cf0ad';
+      svg.append(el('circle',{cx:p.x,cy:p.y,r:window.innerWidth<520?5:4.2,fill,stroke:'#081322','stroke-width':'1.2'}));
     }
+    drawNumbers(idx, destination(idx), false);
 
-    if(showNumbers.checked){
-      const every = labelSkip();
-      for(let i=1;i<=N;i++){
-        if(i%every!==0 && i!==1 && i!==N) continue;
-        const p = point(i,LABEL_R);
-        let color = '#a9b9d1', size = '11';
-        if(current < N && i===idx){ color='#ffd166'; size='14'; }
-        if(current < N && i===destination(idx)){ color='#7cf0ad'; size='14'; }
-        const t = el('text',{x:p.x,y:p.y,fill:color,'font-size':size,'font-weight':'800','text-anchor':'middle','dominant-baseline':'middle'});
-        t.textContent = i; svg.append(t);
-      }
-    }
-
-    const title = el('text',{x:CX,y:CY-3,fill:'#d9e5f8','font-size':'17','text-anchor':'middle','font-weight':'950'});
-    title.textContent = current>=N ? 'CARDIOIDE COMPLETO' : '× 2';
-    svg.append(title);
-    const sub = el('text',{x:CX,y:CY+25,fill:'#8194b4','font-size':'12','text-anchor':'middle'});
-    sub.textContent = `N = ${N} pontos`;
-    svg.append(sub);
+    const t=el('text',{x:CX,y:CY-3,fill:'#d9e5f8','font-size':'17','text-anchor':'middle','font-weight':'950'});
+    t.textContent = current>=N ? 'CARDIOIDE COMPLETO' : '× 2';
+    svg.append(t);
+    const s=el('text',{x:CX,y:CY+25,fill:'#8194b4','font-size':'12','text-anchor':'middle'});
+    s.textContent = `N = ${N} pontos`; svg.append(s);
   }
 
-  function renderReflection(){
+  function renderReflect(singleWave=false){
     const S = sourcePoint();
-    // fonte fixa
+    const rays = [];
     svg.append(el('circle',{cx:S.x,cy:S.y,r:20,fill:'url(#photonGlow)',opacity:'0.95'}));
     svg.append(el('circle',{cx:S.x,cy:S.y,r:5.5,fill:'#fff'}));
 
-    const rays = [];
     for(let step=0; step<current; step++){
       const refIdx = reflectionIndex(step);
       const P = point(refIdx);
       const r = reflectRay(P, S);
       const Q = nextIntersectionOnCircle(P, r);
       rays.push({P,r,Q,refIdx});
-      // raio incidente já feito
-      svg.append(el('line',{x1:S.x,y1:S.y,x2:P.x,y2:P.y,stroke:'#ffe7a7','stroke-width':'0.9','stroke-opacity':'.12'}));
-      // raio refletido acumulado
-      svg.append(el('line',{x1:P.x,y1:P.y,x2:Q.x,y2:Q.y,stroke:'#73dff0','stroke-width':'1.0','stroke-opacity':'.20'}));
+      svg.append(el('line',{x1:S.x,y1:S.y,x2:P.x,y2:P.y,stroke:'#ffe7a7','stroke-width':'0.9','stroke-opacity': singleWave? '.08' : '.13'}));
+      svg.append(el('line',{x1:P.x,y1:P.y,x2:Q.x,y2:Q.y,stroke:'#73dff0','stroke-width':'1.0','stroke-opacity': singleWave? '.18' : '.22'}));
     }
+    drawCausticFromRays(rays);
 
-    // envelope (caústica) aproximado por interseções de raios consecutivos
-    if(rays.length >= 2){
-      const pts = [];
-      for(let i=0;i<rays.length-1;i++){
-        const A = rays[i], B = rays[i+1];
-        const X = lineIntersection(A.P, A.r, B.P, B.r);
-        if(X){
-          const d = Math.hypot(X.x-CX, X.y-CY);
-          if(d < R+6) pts.push(X);
-        }
-      }
-      if(pts.length > 1){
-        let d = `M ${pts[0].x} ${pts[0].y}`;
-        for(let i=1;i<pts.length;i++) d += ` L ${pts[i].x} ${pts[i].y}`;
-        svg.append(el('path',{d:d,fill:'none',stroke:'#ff8bd3','stroke-width':'2.3','stroke-linecap':'round','stroke-linejoin':'round',filter:'url(#softGlow)',opacity:'0.95'}));
-      }
-    }
-
-    // etapa atual com duas fases: incidência e reflexão
+    const activeIdx = current < N-1 ? reflectionIndex(current) : null;
     if(current < N-1 && animating){
-      const refIdx = reflectionIndex(current);
-      const P = point(refIdx);
+      const P = point(activeIdx);
       const r = reflectRay(P, S);
       const Q = nextIntersectionOnCircle(P, r);
 
-      const phase1 = 0.46;
-      const phase2 = 0.54;
-
-      let head = S;
-      if(animProgress < phase1){
-        const p = animProgress / phase1;
-        head = drawPartialLine(S,P,p,'beamInc');
-      } else {
-        svg.append(el('line',{x1:S.x,y1:S.y,x2:P.x,y2:P.y,class:'beamInc'}));
-        if(animProgress < phase2){
-          head = P;
-        } else {
-          const p = (animProgress-phase2) / (1-phase2);
-          head = drawPartialLine(P,Q,p,'beamRef');
+      if(singleWave){
+        const phaseA = 0.58;
+        const dSP = dist(S,P);
+        const waveR = dSP * Math.min(animProgress/phaseA, 1);
+        svg.append(el('circle',{
+          cx:S.x, cy:S.y, r:waveR, fill:'none',
+          stroke:'#ffe7a7', 'stroke-width':'2.2',
+          'stroke-opacity':'.34', 'stroke-dasharray':'7 8'
+        }));
+        if(animProgress >= phaseA){
+          const p = (animProgress-phaseA)/(1-phaseA);
+          const x = P.x + (Q.x-P.x)*p;
+          const y = P.y + (Q.y-P.y)*p;
+          svg.append(el('line',{x1:S.x,y1:S.y,x2:P.x,y2:P.y,stroke:'#ffe7a7','stroke-width':'1.0','stroke-opacity':'.18'}));
+          svg.append(el('line',{x1:P.x,y1:P.y,x2:x,y2:y,stroke:'#73dff0','stroke-width':'6.2','stroke-linecap':'round',filter:'url(#strongGlow)'}));
+          svg.append(el('circle',{cx:P.x,cy:P.y,r:11,fill:'url(#photonGlow)',opacity:'0.75'}));
+          svg.append(el('circle',{cx:x,cy:y,r:16,fill:'url(#photonGlow)',opacity:'0.95'}));
+          svg.append(el('circle',{cx:x,cy:y,r:4.2,fill:'#ffffff'}));
         }
+      }else{
+        const phaseA = 0.46, phaseB = 0.54;
+        let x=S.x, y=S.y;
+        if(animProgress < phaseA){
+          const p = animProgress / phaseA;
+          x = S.x + (P.x-S.x)*p; y = S.y + (P.y-S.y)*p;
+          svg.append(el('line',{x1:S.x,y1:S.y,x2:x,y2:y,stroke:'#ffe7a7','stroke-width':'2.1','stroke-linecap':'round',filter:'url(#softGlow)'}));
+        }else{
+          svg.append(el('line',{x1:S.x,y1:S.y,x2:P.x,y2:P.y,stroke:'#ffe7a7','stroke-width':'2.1','stroke-linecap':'round',filter:'url(#softGlow)'}));
+          if(animProgress >= phaseB){
+            const p = (animProgress-phaseB)/(1-phaseB);
+            x = P.x + (Q.x-P.x)*p; y = P.y + (Q.y-P.y)*p;
+            svg.append(el('line',{x1:P.x,y1:P.y,x2:x,y2:y,stroke:'#73dff0','stroke-width':'6.6','stroke-linecap':'round',filter:'url(#strongGlow)'}));
+          }else{
+            x=P.x; y=P.y;
+          }
+        }
+        svg.append(el('circle',{cx:x,cy:y,r:17,fill:'url(#photonGlow)',opacity:'0.95'}));
+        svg.append(el('circle',{cx:x,cy:y,r:4.2,fill:'#ffffff'}));
       }
-
-      svg.append(el('circle',{cx:head.x,cy:head.y,r:17,fill:'url(#photonGlow)',opacity:'0.95'}));
-      svg.append(el('circle',{cx:head.x,cy:head.y,r:4.2,fill:'#ffffff'}));
-
-      // normal/tangente discretas no ponto atual
-      const n = norm(circleVec(P));
-      const t = {x:-n.y,y:n.x};
-      const L = 26;
-      svg.append(el('line',{x1:P.x-L*t.x,y1:P.y-L*t.y,x2:P.x+L*t.x,y2:P.y+L*t.y,stroke:'#ffffff','stroke-width':'1','stroke-opacity':'.35','stroke-dasharray':'5 5'}));
     }
 
-    // pontos
-    const activeIdx = current < N-1 ? reflectionIndex(current) : null;
     for(let i=1;i<=N;i++){
-      const p = point(i);
-      let fill = '#edf5ff';
-      if(i===1) fill = '#ffd166';
-      if(activeIdx && i===activeIdx) fill = '#7cf0ad';
-      svg.append(el('circle',{cx:p.x,cy:p.y,r:window.innerWidth<520?5:4.2,fill:fill,stroke:'#081322','stroke-width':'1.2'}));
+      const p=point(i);
+      let fill='#edf5ff';
+      if(i===1) fill='#ffd166';
+      if(activeIdx && i===activeIdx) fill='#7cf0ad';
+      svg.append(el('circle',{cx:p.x,cy:p.y,r:window.innerWidth<520?5:4.2,fill,stroke:'#081322','stroke-width':'1.2'}));
     }
+    drawNumbers(null, activeIdx, true);
 
-    if(showNumbers.checked){
-      const every = labelSkip();
-      for(let i=1;i<=N;i++){
-        if(i%every!==0 && i!==1 && i!==N) continue;
-        const p = point(i,LABEL_R);
-        let color = '#a9b9d1', size = '11';
-        if(i===1){ color='#ffd166'; size='14'; }
-        if(activeIdx && i===activeIdx){ color='#7cf0ad'; size='14'; }
-        const t = el('text',{x:p.x,y:p.y,fill:color,'font-size':size,'font-weight':'800','text-anchor':'middle','dominant-baseline':'middle'});
-        t.textContent = i; svg.append(t);
-      }
-    }
-
-    const title = el('text',{x:CX,y:CY-3,fill:'#d9e5f8','font-size':'17','text-anchor':'middle','font-weight':'950'});
-    title.textContent = current>=N-1 ? 'REFLEXÕES COMPLETAS' : 'FONTE + RAIOS REFLETIDOS';
-    svg.append(title);
-    const sub = el('text',{x:CX,y:CY+25,fill:'#8194b4','font-size':'12','text-anchor':'middle'});
-    sub.textContent = `Fonte no ponto 1 • N = ${N}`;
-    svg.append(sub);
+    const t=el('text',{x:CX,y:CY-3,fill:'#d9e5f8','font-size':'17','text-anchor':'middle','font-weight':'950'});
+    t.textContent = mode==='wave' ? (current>=N-1 ? 'ONDA REFLETIDA' : 'FRENTE DE ONDA + RAIOS') : (current>=N-1 ? 'REFLEXÕES COMPLETAS' : 'RAIO REFLETIDO');
+    svg.append(t);
+    const s=el('text',{x:CX,y:CY+25,fill:'#8194b4','font-size':'12','text-anchor':'middle'});
+    s.textContent = `Fonte no ponto 1 • N = ${N}`; svg.append(s);
   }
 
+  function render(){
+    svg.innerHTML = '';
+    prepareDefs();
+    setTexts();
+    drawBaseCircle();
+    if(mode==='string') renderString();
+    else if(mode==='reflect') renderReflect(false);
+    else renderReflect(true);
+    updateStatus();
+  }
+
+  function maxSteps(){ return mode==='string' ? N : N-1; }
+
   function updateStatus(){
-    if(mode === 'string'){
-      if(current >= N){
-        movement.textContent = 'Concluído';
-        progress.textContent = `${N} linhas desenhadas`;
-        stepBtn.disabled = true; playBtn.disabled = true; return;
+    if(mode==='string'){
+      if(current>=N){
+        movement.textContent='Concluído';
+        progress.textContent=`${N} linhas desenhadas`;
+        stepBtn.disabled=true; playBtn.disabled=true; return;
       }
-      const i = current+1;
-      movement.textContent = `${i} → ${destination(i)}`;
-      progress.textContent = `Passo ${i} de ${N}`;
-    } else {
-      if(current >= N-1){
-        movement.textContent = 'Concluído';
-        progress.textContent = `${N-1} reflexões desenhadas`;
-        stepBtn.disabled = true; playBtn.disabled = true; return;
+      const i=current+1;
+      movement.textContent=`${i} → ${destination(i)}`;
+      progress.textContent=`Passo ${i} de ${N}`;
+    }else if(mode==='reflect'){
+      if(current>=N-1){
+        movement.textContent='Concluído';
+        progress.textContent=`${N-1} reflexões desenhadas`;
+        stepBtn.disabled=true; playBtn.disabled=true; return;
       }
       const refIdx = reflectionIndex(current);
-      movement.textContent = `Fonte → ${refIdx} → reflexão`;
-      progress.textContent = `Raio ${current+1} de ${N-1}`;
+      movement.textContent=`Fonte → ${refIdx} → reflexão`;
+      progress.textContent=`Raio ${current+1} de ${N-1}`;
+    }else{
+      if(current>=N-1){
+        movement.textContent='Concluído';
+        progress.textContent=`${N-1} contatos da onda`;
+        stepBtn.disabled=true; playBtn.disabled=true; return;
+      }
+      const refIdx = reflectionIndex(current);
+      movement.textContent=`Onda cresce → toca ${refIdx} → reflete`;
+      progress.textContent=`Contato ${current+1} de ${N-1}`;
     }
-    stepBtn.disabled = animating;
-    playBtn.disabled = false;
+    stepBtn.disabled=animating; playBtn.disabled=false;
   }
 
   function duration(){ return +speedInput.value; }
 
-  function maxSteps(){ return mode === 'string' ? N : N-1; }
-
   function animateCurrent(done){
-    if(animating || current >= maxSteps()) return;
-    animating = true;
-    animProgress = 0;
-    lastTs = null;
-    stepBtn.disabled = true;
-
+    if(animating || current>=maxSteps()) return;
+    animating=true; animProgress=0; lastTs=null; stepBtn.disabled=true;
     function frame(ts){
-      if(lastTs === null) lastTs = ts;
-      const dt = ts - lastTs;
-      lastTs = ts;
-      animProgress += dt / duration();
-
-      if(animProgress >= 1){
-        animProgress = 1;
-        render();
-        cancelAnimationFrame(raf);
-        raf = null;
-        animating = false;
-        current++;
-        animProgress = 0;
-        render();
+      if(lastTs===null) lastTs=ts;
+      const dt=ts-lastTs; lastTs=ts;
+      animProgress += dt/duration();
+      if(animProgress>=1){
+        animProgress=1; render();
+        cancelAnimationFrame(raf); raf=null; animating=false;
+        current++; animProgress=0; render();
         if(done) done();
         return;
       }
       render();
-      raf = requestAnimationFrame(frame);
+      raf=requestAnimationFrame(frame);
     }
-    raf = requestAnimationFrame(frame);
+    raf=requestAnimationFrame(frame);
   }
 
-  function step(){ if(!animating && current < maxSteps()) animateCurrent(); }
-
+  function step(){ if(!animating && current<maxSteps()) animateCurrent(); }
   function loop(){
     if(!playing) return;
-    if(current >= maxSteps()){ stopPlay(); return; }
+    if(current>=maxSteps()){ stopPlay(); return; }
     animateCurrent(() => { if(playing) setTimeout(loop, 65); });
   }
-
   function startPlay(){
-    if(current >= maxSteps()){ current = 0; render(); }
-    playing = true;
-    playIcon.textContent = '⏸';
-    playText.textContent = 'Pausar';
-    loop();
+    if(current>=maxSteps()){ current=0; render(); }
+    playing=true; playIcon.textContent='⏸'; playText.textContent='Pausar'; loop();
   }
-
-  function stopPlay(){
-    playing = false;
-    playIcon.textContent = '▶';
-    playText.textContent = 'Iniciar';
-  }
-
+  function stopPlay(){ playing=false; playIcon.textContent='▶'; playText.textContent='Iniciar'; }
   function reset(){
     stopPlay();
     if(raf) cancelAnimationFrame(raf);
-    raf = null;
-    animating = false;
-    animProgress = 0;
-    current = 0;
-    render();
+    raf=null; animating=false; animProgress=0; current=0; render();
   }
-
   function back(){
     stopPlay();
     if(animating){
       if(raf) cancelAnimationFrame(raf);
-      raf = null;
-      animating = false;
-      animProgress = 0;
-      render();
-      return;
+      raf=null; animating=false; animProgress=0; render(); return;
     }
-    if(current > 0){
-      current--;
-      render();
-    }
+    if(current>0){ current--; render(); }
   }
 
   function setMode(next){
-    mode = next;
+    mode=next;
     stringModeBtn.classList.toggle('active', mode==='string');
     reflectModeBtn.classList.toggle('active', mode==='reflect');
-    modeBadge.textContent = mode==='string' ? 'STRING ART' : 'REFLEXÃO DA LUZ';
-    modeOut.value = mode==='string' ? 'String Art' : 'Reflexão';
+    waveModeBtn.classList.toggle('active', mode==='wave');
+    modeBadge.textContent = mode==='string' ? 'STRING ART' : (mode==='reflect' ? 'RAIO ÚNICO' : 'ONDA + VÁRIOS RAIOS');
+    modeOut.value = mode==='string' ? 'String Art' : (mode==='reflect' ? 'Raio' : 'Onda');
     reset();
   }
 
-  playBtn.onclick = () => playing ? stopPlay() : startPlay();
+  playBtn.onclick = ()=> playing ? stopPlay() : startPlay();
   stepBtn.onclick = step;
   backBtn.onclick = back;
   resetBtn.onclick = reset;
 
-  pointsInput.oninput = () => { N = +pointsInput.value; pointsOut.value = N; reset(); };
-  speedInput.oninput = () => { speedOut.value = `${speedInput.value} ms`; };
+  pointsInput.oninput = ()=> { N=+pointsInput.value; pointsOut.value=N; reset(); };
+  speedInput.oninput = ()=> { speedOut.value = `${speedInput.value} ms`; };
   showNumbers.onchange = render;
 
-  stringModeBtn.onclick = () => setMode('string');
-  reflectModeBtn.onclick = () => setMode('reflect');
+  stringModeBtn.onclick = ()=> setMode('string');
+  reflectModeBtn.onclick = ()=> setMode('reflect');
+  waveModeBtn.onclick = ()=> setMode('wave');
 
-  let sx = null;
-  svg.addEventListener('touchstart', e => {
-    if(e.touches.length === 1) sx = e.touches[0].clientX;
-  }, {passive:true});
-  svg.addEventListener('touchend', e => {
-    if(sx === null) return;
-    const dx = e.changedTouches[0].clientX - sx;
-    if(Math.abs(dx) > 55){
-      if(dx < 0) step();
-      else back();
-    }
-    sx = null;
+  let sx=null;
+  svg.addEventListener('touchstart', e=>{ if(e.touches.length===1) sx=e.touches[0].clientX; }, {passive:true});
+  svg.addEventListener('touchend', e=>{
+    if(sx===null) return;
+    const dx=e.changedTouches[0].clientX-sx;
+    if(Math.abs(dx)>55){ if(dx<0) step(); else back(); }
+    sx=null;
   }, {passive:true});
 
   window.addEventListener('resize', render);
 
-  // estilos SVG via <style> inline no documento
-  const svgStyle = document.createElementNS('http://www.w3.org/2000/svg','style');
-  svgStyle.textContent = `
-    .activePath{fill:none;stroke:#ffd166;stroke-width:3.4;stroke-linecap:round;vector-effect:non-scaling-stroke;filter:url(#softGlow)}
-    .beamInc{fill:none;stroke:#ffe7a7;stroke-width:2.1;stroke-linecap:round;stroke-opacity:.95;filter:url(#softGlow)}
-    .beamRef{fill:none;stroke:url(#beamGradient);stroke-width:6.6;stroke-linecap:round;filter:url(#strongGlow)}
-  `;
-
-  const oldPrepare = prepareDefs;
-  prepareDefs = function(){ oldPrepare(); svg.querySelector('defs').append(svgStyle.cloneNode(true)); };
-
-  pointsOut.value = N;
-  speedOut.value = `${speedInput.value} ms`;
+  pointsOut.value=N;
+  speedOut.value=`${speedInput.value} ms`;
+  setTexts();
   render();
 })();
 </script>
