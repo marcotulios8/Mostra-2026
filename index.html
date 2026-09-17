@@ -1,736 +1,854 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#07111f">
-<title>Cardioide — String Art e Caústica de Luz</title>
-<style>
-:root{
-  --bg:#07111f; --panel:#0e1a2e; --text:#f5f8ff; --muted:#9fb0cc;
-  --cyan:#62e8ff; --yellow:#ffd166; --green:#7cf0ad; --pink:#ff7bd5;
-  --border:rgba(255,255,255,.10); --safe:max(10px,env(safe-area-inset-bottom));
-}
-*{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
-body{
-  margin:0; min-height:100vh; color:var(--text);
-  font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
-  background:
-    radial-gradient(circle at 15% 5%,rgba(43,87,150,.30),transparent 29rem),
-    radial-gradient(circle at 90% 92%,rgba(39,87,116,.20),transparent 26rem),
-    var(--bg);
-}
-button,input{font:inherit}
-.app{width:min(100%,1440px);margin:auto;padding:10px 10px calc(106px + var(--safe))}
-.card{
-  border:1px solid var(--border); border-radius:20px;
-  background:linear-gradient(180deg,rgba(18,31,53,.97),rgba(10,19,34,.97));
-  box-shadow:0 18px 55px rgba(0,0,0,.32)
-}
-.hero{padding:15px;margin-bottom:10px}
-.eyebrow{color:var(--cyan);font-size:.72rem;font-weight:900;letter-spacing:.12em;text-transform:uppercase;margin-bottom:5px}
-h1{margin:0;font-size:clamp(1.42rem,6.3vw,2.5rem);line-height:1.04}
-.sub{margin:7px 0 0;color:var(--muted);font-size:.91rem;line-height:1.42}
-.layout{display:grid;gap:10px}
-.stage{overflow:hidden}
-.stage-head{padding:10px 12px 0;display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
-.status-label{color:var(--muted);font-size:.64rem;font-weight:900;letter-spacing:.10em;text-transform:uppercase}
-.movement{font-size:clamp(1.22rem,6.7vw,2rem);color:var(--yellow);font-weight:950;line-height:1.05;margin-top:2px}
-.progress{color:var(--muted);font-size:.77rem;margin-top:3px}
-.badge{flex:0 0 auto;border:1px solid rgba(98,232,255,.24);background:rgba(98,232,255,.08);color:var(--cyan);font-size:.71rem;font-weight:900;padding:8px 10px;border-radius:999px}
-.canvas-wrap{width:100%;aspect-ratio:1/1;min-height:320px;max-height:74vh;padding:3px 5px 7px;position:relative}
-canvas{width:100%;height:100%;display:block;touch-action:none;border-radius:16px}
-.side{padding:14px}
-.section-title{margin:0 0 8px;font-size:1rem}
-.formula{
-  background:rgba(98,232,255,.07);border:1px solid rgba(98,232,255,.20);
-  border-radius:14px;padding:11px;color:#dcecff;font-size:.87rem;line-height:1.45
-}
-.formula b{color:var(--cyan)}
-.controls{display:grid;gap:12px;margin-top:12px}
-.control{border-top:1px solid rgba(255,255,255,.07);padding-top:10px;display:grid;grid-template-columns:1fr auto;gap:6px 10px;align-items:center}
-.control label{font-size:.87rem;font-weight:800}
-.control output{color:var(--cyan);font-weight:950;font-variant-numeric:tabular-nums}
-.control input[type=range]{grid-column:1/-1;width:100%;height:34px;accent-color:var(--cyan)}
-.segmented{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr 1.25fr;gap:6px}
-.segmented button{min-height:44px;border:1px solid var(--border);border-radius:12px;background:#1a2943;color:var(--text);font-size:.78rem;font-weight:900}
-.segmented button.active{background:var(--cyan);color:#06111d;border-color:transparent}
-.toggle{min-height:42px;display:flex;gap:9px;align-items:center;color:var(--muted);font-size:.86rem;font-weight:700}
-.toggle input{width:20px;height:20px;accent-color:var(--cyan)}
-.info{margin-top:12px;border:1px solid rgba(255,209,102,.22);background:rgba(255,209,102,.055);border-radius:14px;padding:11px}
-.info h3{margin:0 0 6px;color:#ffe7ad;font-size:.9rem}
-.info p{margin:0;color:var(--muted);font-size:.77rem;line-height:1.43}
-.legend{margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:7px;font-size:.74rem;color:var(--muted)}
-.key{display:flex;align-items:center;gap:7px}
-.dot{width:11px;height:11px;border-radius:50%;flex:0 0 11px}
-.bottom{
-  position:fixed;z-index:50;left:0;right:0;bottom:0;padding:8px 9px var(--safe);
-  background:linear-gradient(180deg,transparent,rgba(7,17,31,.88) 20%,rgba(7,17,31,.98) 46%);
-  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)
-}
-.bar{width:min(100%,780px);margin:auto;display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
-.action{min-height:56px;border:0;border-radius:15px;background:#263754;color:var(--text);font-weight:950}
-.action.primary{background:var(--cyan);color:#06111d}
-.action.hot{background:var(--yellow);color:#1b1403}
-.action:disabled{opacity:.42}
-.action span{display:block}.action .ic{font-size:1.05rem;line-height:1}.action .tx{font-size:.69rem;margin-top:3px}
-@media(min-width:900px){
-  .app{padding:18px}.layout{grid-template-columns:minmax(0,1fr) 390px;align-items:start}
-  .canvas-wrap{height:calc(100vh - 210px);min-height:600px;max-height:none;aspect-ratio:auto}
-  .side{position:sticky;top:18px}
-  .bottom{position:static;background:none;backdrop-filter:none;padding:10px 0 0}.bar{width:100%}
-}
-@media(orientation:landscape) and (max-height:560px){
-  .hero,.side{display:none}.app{padding:6px 6px 82px}
-  .canvas-wrap{height:calc(100vh - 78px);min-height:0;max-height:none;aspect-ratio:auto}
-  .action{min-height:49px}
-}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0B376D" />
+  <title>Cardioide • Escola Neusa Rocha</title>
+  <style>
+    :root{
+      --azul-900:#082B57;
+      --azul-800:#0B376D;
+      --azul-700:#16457E;
+      --azul-600:#2D5B91;
+      --azul-100:#EAF0F7;
+      --azul-050:#F5F8FB;
+      --cinza-500:#6B7A90;
+      --cinza-200:#DDE5EE;
+      --branco:#FFFFFF;
+      --dourado:#E7B74D;
+      --preto-card:#111214;
+      --preto-card-2:#1B1C1F;
+      --amarelo-linha:#F1CC2D;
+      --sombra:0 16px 40px rgba(8,43,87,.12);
+      --raio:22px;
+    }
+
+    *{box-sizing:border-box}
+
+    html,body{
+      margin:0;
+      min-height:100%;
+      background:var(--azul-050);
+      color:var(--azul-900);
+      font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      -webkit-font-smoothing:antialiased;
+    }
+
+    body.menu-aberto{overflow:hidden}
+    button,a{font:inherit}
+
+    .app{
+      min-height:100vh;
+      min-height:100dvh;
+      display:flex;
+      flex-direction:column;
+    }
+
+    .topo{
+      position:sticky;
+      top:0;
+      z-index:20;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      height:68px;
+      padding:calc(10px + env(safe-area-inset-top)) 16px 10px;
+      background:rgba(255,255,255,.94);
+      backdrop-filter:blur(12px);
+      border-bottom:1px solid rgba(8,43,87,.08);
+    }
+
+    .marca{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width:0;
+    }
+
+    .selo{
+      width:38px;
+      height:38px;
+      border-radius:12px;
+      display:grid;
+      place-items:center;
+      flex:0 0 auto;
+      background:var(--azul-800);
+      color:#fff;
+      font-weight:900;
+      letter-spacing:-1px;
+      box-shadow:0 8px 18px rgba(11,55,109,.20);
+    }
+
+    .marca-texto{min-width:0}
+    .marca-texto strong{
+      display:block;
+      font-size:14px;
+      line-height:1.05;
+      letter-spacing:.01em;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .marca-texto span{
+      display:block;
+      margin-top:3px;
+      font-size:11px;
+      color:var(--cinza-500);
+    }
+
+    .menu-btn,.fechar-btn,.replay-btn{
+      border:0;
+      background:transparent;
+      color:var(--azul-900);
+      min-width:44px;
+      min-height:44px;
+      border-radius:14px;
+      display:grid;
+      place-items:center;
+      cursor:pointer;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .menu-btn:active,.fechar-btn:active,.replay-btn:active{background:var(--azul-100)}
+    .menu-btn svg,.fechar-btn svg,.replay-btn svg{width:24px;height:24px}
+
+    .overlay{
+      position:fixed;
+      inset:0;
+      z-index:40;
+      background:rgba(4,24,48,.36);
+      opacity:0;
+      pointer-events:none;
+      transition:.25s ease;
+    }
+    .overlay.aberto{
+      opacity:1;
+      pointer-events:auto;
+    }
+
+    .drawer{
+      position:fixed;
+      z-index:50;
+      top:0;
+      left:0;
+      bottom:0;
+      width:min(84vw,330px);
+      padding:calc(18px + env(safe-area-inset-top)) 18px 24px;
+      background:#fff;
+      box-shadow:20px 0 60px rgba(4,24,48,.24);
+      transform:translateX(-104%);
+      transition:transform .28s cubic-bezier(.2,.8,.2,1);
+      display:flex;
+      flex-direction:column;
+    }
+    .drawer.aberto{transform:translateX(0)}
+
+    .drawer-topo{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:26px;
+    }
+
+    .drawer-titulo strong{
+      display:block;
+      color:var(--azul-900);
+      font-size:17px;
+    }
+    .drawer-titulo span{
+      font-size:12px;
+      color:var(--cinza-500);
+    }
+
+    .nav{
+      display:grid;
+      gap:8px;
+    }
+    .nav button{
+      width:100%;
+      border:0;
+      background:transparent;
+      color:var(--azul-900);
+      text-align:left;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:14px 14px;
+      border-radius:14px;
+      cursor:pointer;
+      min-height:52px;
+    }
+    .nav button .icone{
+      width:34px;
+      height:34px;
+      flex:0 0 34px;
+      display:grid;
+      place-items:center;
+      border-radius:11px;
+      background:var(--azul-100);
+      color:var(--azul-800);
+      font-weight:800;
+    }
+    .nav button.ativo{
+      background:var(--azul-800);
+      color:#fff;
+    }
+    .nav button.ativo .icone{
+      background:rgba(255,255,255,.15);
+      color:#fff;
+    }
+
+    .drawer-rodape{
+      margin-top:auto;
+      padding:18px 8px 0;
+      font-size:11px;
+      line-height:1.5;
+      color:var(--cinza-500);
+      border-top:1px solid var(--cinza-200);
+    }
+
+    main{
+      width:min(100%,760px);
+      margin:0 auto;
+      padding:18px 16px calc(28px + env(safe-area-inset-bottom));
+      flex:1;
+    }
+
+    .pagina{display:none}
+    .pagina.ativa{display:block;animation:entrada .28s ease both}
+    @keyframes entrada{
+      from{opacity:0;transform:translateY(8px)}
+      to{opacity:1;transform:none}
+    }
+
+    .hero{
+      padding:8px 4px 16px;
+    }
+    .kicker{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      margin-bottom:7px;
+      color:var(--azul-700);
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:.09em;
+      text-transform:uppercase;
+    }
+    .kicker::before{
+      content:"";
+      width:22px;
+      height:3px;
+      border-radius:3px;
+      background:var(--dourado);
+    }
+
+    h1,h2,h3,p{margin-top:0}
+    h1{
+      margin-bottom:8px;
+      font-size:clamp(28px,8vw,44px);
+      line-height:1;
+      letter-spacing:-.035em;
+    }
+    h2{
+      font-size:24px;
+      line-height:1.12;
+      letter-spacing:-.02em;
+      margin-bottom:10px;
+    }
+    h3{
+      font-size:17px;
+      margin-bottom:8px;
+    }
+    p{
+      color:#42546D;
+      line-height:1.65;
+      font-size:15px;
+      margin-bottom:14px;
+    }
+
+    .animacao-pura{
+      padding-top:4px;
+    }
+
+    .titulo-cardioide{
+      margin:4px 0 18px;
+      font-size:clamp(38px,12vw,64px);
+      line-height:.94;
+      letter-spacing:-.06em;
+      text-align:center;
+      color:var(--azul-900);
+    }
+
+    .canvas-card{
+      position:relative;
+      background:linear-gradient(180deg,var(--preto-card),var(--preto-card-2));
+      border:1px solid rgba(8,43,87,.08);
+      border-radius:28px;
+      box-shadow:0 18px 44px rgba(8,43,87,.14);
+      overflow:hidden;
+      padding:12px;
+    }
+
+    .canvas-top{
+      position:absolute;
+      top:10px;
+      right:10px;
+      z-index:4;
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      width:calc(100% - 20px);
+      pointer-events:none;
+    }
+
+    .replay-btn{
+      pointer-events:auto;
+      color:#fff;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.12);
+      backdrop-filter:blur(8px);
+    }
+    .replay-btn:active{background:rgba(255,255,255,.16)}
+
+    .canvas-wrap{
+      position:relative;
+      width:100%;
+      aspect-ratio:1/1;
+      min-height:280px;
+      max-height:72vh;
+      display:grid;
+      place-items:center;
+      border-radius:24px;
+      overflow:hidden;
+    }
+
+    #cardioide{
+      width:100%;
+      height:100%;
+      display:block;
+      touch-action:none;
+    }
+
+    .conteudo-card{
+      background:#fff;
+      border:1px solid rgba(8,43,87,.08);
+      box-shadow:var(--sombra);
+      border-radius:var(--raio);
+      padding:20px;
+      margin-top:8px;
+    }
+
+    .passos{
+      display:grid;
+      gap:12px;
+      margin:18px 0 4px;
+    }
+    .passo{
+      display:grid;
+      grid-template-columns:38px 1fr;
+      gap:12px;
+      align-items:start;
+      padding:12px 0;
+      border-bottom:1px solid var(--cinza-200);
+    }
+    .passo:last-child{border-bottom:0}
+    .numero{
+      width:38px;
+      height:38px;
+      border-radius:12px;
+      display:grid;
+      place-items:center;
+      background:var(--azul-800);
+      color:white;
+      font-weight:900;
+      font-size:13px;
+    }
+    .passo p{margin:2px 0 0;font-size:14px}
+
+    .formula{
+      margin:16px 0;
+      padding:16px;
+      border-radius:16px;
+      background:var(--azul-900);
+      color:white;
+      text-align:center;
+      font-size:19px;
+      font-weight:800;
+      letter-spacing:.01em;
+    }
+    .formula small{
+      display:block;
+      margin-top:7px;
+      font-size:11px;
+      font-weight:500;
+      opacity:.72;
+    }
+
+    .mini-circulo{
+      width:min(100%,330px);
+      aspect-ratio:1;
+      margin:18px auto 6px;
+      border-radius:50%;
+      border:2px solid var(--azul-800);
+      position:relative;
+      background:var(--azul-050);
+    }
+    .mini-circulo span{
+      position:absolute;
+      width:12px;
+      height:12px;
+      margin:-6px 0 0 -6px;
+      border-radius:50%;
+      background:var(--azul-800);
+      border:2px solid white;
+      box-shadow:0 0 0 1px var(--azul-800);
+    }
+
+    .rodape{
+      width:min(100%,760px);
+      margin:0 auto;
+      padding:0 16px calc(18px + env(safe-area-inset-bottom));
+      font-size:11px;
+      color:#7A889C;
+      text-align:center;
+    }
+
+    @media (min-width:700px){
+      .topo{padding-left:28px;padding-right:28px}
+      main{padding-top:26px}
+      .conteudo-card{padding:28px}
+    }
+
+    @media (prefers-reduced-motion:reduce){
+      *,*::before,*::after{
+        scroll-behavior:auto!important;
+        animation-duration:.001ms!important;
+        transition-duration:.001ms!important;
+      }
+    }
+  </style>
 </head>
 <body>
-<main class="app">
-<header class="card hero">
-  <div class="eyebrow">Arte + Matemática + Óptica</div>
-  <h1>Cardioide Interativo</h1>
-  <p class="sub">
-    No modo <b>Onda contínua</b>, todos os raios saem simultaneamente da fonte.
-    A frente circular cresce, encontra a parede interna e os raios passam a ricochetear continuamente.
-  </p>
-</header>
+  <div class="app">
 
-<div class="layout">
-<section class="card stage">
-  <div class="stage-head">
-    <div>
-      <div class="status-label">Visualização</div>
-      <div id="movement" class="movement">1 → 2</div>
-      <div id="progress" class="progress">Passo 1 de 80</div>
-    </div>
-    <div id="modeBadge" class="badge">STRING ART</div>
-  </div>
-  <div class="canvas-wrap"><canvas id="canvas"></canvas></div>
-</section>
-
-<aside class="card side">
-  <h2 class="section-title">Como funciona?</h2>
-  <div id="formulaBox" class="formula"></div>
-
-  <div class="controls">
-    <div class="control">
-      <label id="densityLabel" for="density">Pontos</label>
-      <output id="densityOut">80</output>
-      <input id="density" type="range" min="16" max="220" step="1" value="80">
-    </div>
-
-    <div class="control">
-      <label for="speed">Velocidade</label>
-      <output id="speedOut">1,0×</output>
-      <input id="speed" type="range" min="20" max="300" step="5" value="100">
-    </div>
-
-    <div id="bounceControl" class="control" style="display:none">
-      <label for="bounces">Ricochetes máximos</label>
-      <output id="bouncesOut">2</output>
-      <input id="bounces" type="range" min="1" max="6" step="1" value="2">
-    </div>
-
-    <div class="control">
-      <label>Modo</label>
-      <output id="modeOut">String</output>
-      <div class="segmented">
-        <button id="stringMode" class="active">String</button>
-        <button id="rayMode">Raio</button>
-        <button id="waveMode">Onda contínua</button>
+    <header class="topo">
+      <div class="marca" aria-label="Escola Rouxinol Neusa Rocha">
+        <div class="selo">NR</div>
+        <div class="marca-texto">
+          <strong>Cardioide</strong>
+          <span>Escola Neusa Rocha</span>
+        </div>
       </div>
-    </div>
 
-    <label class="toggle"><input id="showPoints" type="checkbox" checked> Mostrar pontos da circunferência</label>
-    <label id="frontToggleRow" class="toggle" style="display:none"><input id="showFront" type="checkbox" checked> Mostrar frente de onda</label>
-    <label id="causticToggleRow" class="toggle" style="display:none"><input id="showCaustic" type="checkbox" checked> Destacar a caústica</label>
+      <button class="menu-btn" id="abrirMenu" aria-label="Abrir menu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </header>
+
+    <div class="overlay" id="overlay" aria-hidden="true"></div>
+
+    <aside class="drawer" id="drawer" aria-label="Menu de navegação">
+      <div class="drawer-topo">
+        <div class="drawer-titulo">
+          <strong>Cardioide</strong>
+          <span>Uma construção com 60 pontos</span>
+        </div>
+        <button class="fechar-btn" id="fecharMenu" aria-label="Fechar menu">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <nav class="nav">
+        <button class="nav-link ativo" data-pagina="animacao">
+          <span class="icone">1</span>
+          <span>Animação</span>
+        </button>
+        <button class="nav-link" data-pagina="como-funciona">
+          <span class="icone">2</span>
+          <span>Como funciona</span>
+        </button>
+        <button class="nav-link" data-pagina="matematica">
+          <span class="icone">3</span>
+          <span>A matemática</span>
+        </button>
+      </nav>
+
+      <div class="drawer-rodape">
+        Página inicial simplificada para dar destaque total ao desenho, usando o estilo do cardioide físico com fundo escuro e linhas amarelas.
+      </div>
+    </aside>
+
+    <main>
+      <section class="pagina ativa" id="animacao">
+        <div class="animacao-pura">
+          <h1 class="titulo-cardioide">CARDIOIDE</h1>
+
+          <div class="canvas-card">
+            <div class="canvas-top">
+              <button class="replay-btn" id="reiniciar" aria-label="Reiniciar animação" title="Reiniciar">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M4.5 8.5V4.5h4M5 5a8.5 8.5 0 1 1-1.2 10.1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
+
+            <div class="canvas-wrap">
+              <canvas id="cardioide"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="pagina" id="como-funciona">
+        <div class="hero">
+          <div class="kicker">Passo a passo</div>
+          <h1>Como a figura é construída?</h1>
+          <p>A ideia é simples o suficiente para ser reproduzida com papel, régua, barbante ou em uma programação.</p>
+        </div>
+
+        <div class="conteudo-card">
+          <h2>Três passos</h2>
+
+          <div class="passos">
+            <div class="passo">
+              <div class="numero">01</div>
+              <div>
+                <h3>Marque 60 pontos</h3>
+                <p>Distribua os pontos igualmente ao redor de uma circunferência e numere-os de 0 a 59.</p>
+              </div>
+            </div>
+
+            <div class="passo">
+              <div class="numero">02</div>
+              <div>
+                <h3>Dobre o número</h3>
+                <p>Para cada ponto <b>n</b>, encontre o ponto correspondente a <b>2n</b>. Quando passar de 59, continue a contagem a partir de 0.</p>
+              </div>
+            </div>
+
+            <div class="passo">
+              <div class="numero">03</div>
+              <div>
+                <h3>Ligue os dois pontos</h3>
+                <p>Repita a ligação para todos os 60 pontos. O conjunto das retas faz aparecer o formato característico do cardioide.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="formula">
+            destino = (2 × n) mod 60
+            <small>“mod 60” significa que a contagem volta ao início depois do ponto 59.</small>
+          </div>
+        </div>
+      </section>
+
+      <section class="pagina" id="matematica">
+        <div class="hero">
+          <div class="kicker">Por trás da imagem</div>
+          <h1>Por que isso lembra um coração?</h1>
+          <p>O efeito aparece porque muitas retas tangenciam, aproximadamente, uma mesma curva. Essa curva-envelope se aproxima de um cardioide.</p>
+        </div>
+
+        <div class="conteudo-card">
+          <h2>A ideia matemática</h2>
+          <p>Cada ponto está associado a um ângulo no círculo. Ao multiplicar sua posição por 2, também estamos dobrando esse ângulo. A reta entre a posição original e a nova posição muda continuamente.</p>
+
+          <p>Com apenas algumas linhas, o desenho parece desorganizado. Quando repetimos o processo em muitos pontos, as retas ficam muito próximas umas das outras e revelam um contorno regular.</p>
+
+          <div class="formula">
+            θ → 2θ
+            <small>No nosso desenho, os ângulos são representados por 60 posições discretas.</small>
+          </div>
+
+          <p><b>Importante:</b> as 60 retas não são o cardioide em si. Elas formam uma aproximação visual de uma curva-envelope. Quanto mais pontos usamos, mais suave o contorno parece.</p>
+
+          <div class="mini-circulo" aria-hidden="true" id="miniCirculo"></div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="rodape">
+      Escola Neusa Rocha • experiência interativa para celular
+    </footer>
   </div>
 
-  <div class="info">
-    <h3>O que você está vendo?</h3>
-    <p id="infoText"></p>
-    <div class="legend">
-      <div class="key"><span class="dot" style="background:#ffd166"></span>fonte / onda incidente</div>
-      <div class="key"><span class="dot" style="background:#62e8ff"></span>raios refletidos</div>
-      <div class="key"><span class="dot" style="background:#ff7bd5"></span>região de concentração</div>
-      <div class="key"><span class="dot" style="background:#7cf0ad"></span>frente refletida</div>
-    </div>
-  </div>
-
-  <div class="bottom"><div class="bar">
-    <button id="back" class="action"><span class="ic">←</span><span class="tx">Voltar</span></button>
-    <button id="play" class="action primary"><span id="playIcon" class="ic">▶</span><span id="playText" class="tx">Iniciar</span></button>
-    <button id="step" class="action hot"><span class="ic">＋</span><span class="tx">1 etapa</span></button>
-    <button id="reset" class="action"><span class="ic">↺</span><span class="tx">Reiniciar</span></button>
-  </div></div>
-</aside>
-</div>
-</main>
 
 <script>
 (() => {
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
+  const TOTAL = 60;
+  const DURACAO_LINHA = 140; // ms por linha: efeito de "costura"
+  const canvas = document.getElementById('cardioide');
+  const ctx = canvas.getContext('2d');
+  const wrap = canvas.parentElement;
+  const replay = document.getElementById('reiniciar');
 
-const density = document.getElementById('density');
-const speed = document.getElementById('speed');
-const bounces = document.getElementById('bounces');
-const densityOut = document.getElementById('densityOut');
-const speedOut = document.getElementById('speedOut');
-const bouncesOut = document.getElementById('bouncesOut');
-const densityLabel = document.getElementById('densityLabel');
-const bounceControl = document.getElementById('bounceControl');
-const showPoints = document.getElementById('showPoints');
-const showFront = document.getElementById('showFront');
-const showCaustic = document.getElementById('showCaustic');
-const frontToggleRow = document.getElementById('frontToggleRow');
-const causticToggleRow = document.getElementById('causticToggleRow');
+  let pontos = [];
+  let indiceAtual = 0;
+  let progressoLinha = 0;
+  let ultimoTempo = 0;
+  let raf = null;
+  let pausado = false;
+  let concluido = false;
 
-const stringMode = document.getElementById('stringMode');
-const rayMode = document.getElementById('rayMode');
-const waveMode = document.getElementById('waveMode');
-const modeBadge = document.getElementById('modeBadge');
-const modeOut = document.getElementById('modeOut');
-const formulaBox = document.getElementById('formulaBox');
-const infoText = document.getElementById('infoText');
-const movement = document.getElementById('movement');
-const progress = document.getElementById('progress');
+  const cores = {
+    fundo: '#121316',
+    disco: '#1A1B1E',
+    aro: '#3B3E43',
+    linha: 'rgba(241,204,45,.74)',
+    linhaAtiva: '#FFE14D',
+    brilho: 'rgba(255,225,77,.22)',
+    ponto: 'rgba(255,225,77,.52)',
+    agulha: '#FFF2A8'
+  };
 
-const playBtn = document.getElementById('play');
-const playIcon = document.getElementById('playIcon');
-const playText = document.getElementById('playText');
-const backBtn = document.getElementById('back');
-const stepBtn = document.getElementById('step');
-const resetBtn = document.getElementById('reset');
-
-let mode = 'string';
-let running = false;
-let raf = null;
-let lastT = 0;
-
-// String-art
-let stringStep = 0;
-let stringAnim = 0;
-let stringAnimating = false;
-
-// Raio único
-let rayIndex = 0;
-let rayPhase = 0;
-
-// Onda contínua
-let waveDistance = 0;
-let rays = [];
-let maxOpticalLength = 1;
-let needsRayBuild = true;
-
-const TAU = Math.PI * 2;
-
-function cssVar(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
-
-function resize(){
-  const rect = canvas.getBoundingClientRect();
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  canvas.width = Math.max(1, Math.round(rect.width*dpr));
-  canvas.height = Math.max(1, Math.round(rect.height*dpr));
-  ctx.setTransform(dpr,0,0,dpr,0,0);
-  draw();
-}
-
-function geom(){
-  const w = canvas.clientWidth, h = canvas.clientHeight;
-  const s = Math.min(w,h);
-  return {w,h,cx:w/2,cy:h/2,R:s*0.375,sourceAngle:0};
-}
-
-function pointOnCircle(i,N,g){
-  const a = -Math.PI/2 + i*TAU/N;
-  return {x:g.cx+g.R*Math.cos(a), y:g.cy+g.R*Math.sin(a)};
-}
-
-function destination(i,N){ return (2*i)%N; }
-
-function vadd(a,b){return{x:a.x+b.x,y:a.y+b.y}}
-function vsub(a,b){return{x:a.x-b.x,y:a.y-b.y}}
-function vmul(a,t){return{x:a.x*t,y:a.y*t}}
-function dot(a,b){return a.x*b.x+a.y*b.y}
-function len(a){return Math.hypot(a.x,a.y)}
-function norm(a){const L=len(a)||1;return{x:a.x/L,y:a.y/L}}
-
-function rayCircleHit(P,D,g){
-  const pc={x:P.x-g.cx,y:P.y-g.cy};
-  const B=2*dot(pc,D);
-  const C=dot(pc,pc)-g.R*g.R;
-  const disc=B*B-4*C;
-  if(disc<0) return null;
-  const sd=Math.sqrt(Math.max(0,disc));
-  const t1=(-B-sd)/2, t2=(-B+sd)/2;
-  let t=Infinity;
-  if(t1>0.002) t=Math.min(t,t1);
-  if(t2>0.002) t=Math.min(t,t2);
-  if(!isFinite(t)) return null;
-  return {P:vadd(P,vmul(D,t)),t};
-}
-
-function reflectedDirection(D,hit,g){
-  const n=norm({x:hit.x-g.cx,y:hit.y-g.cy});
-  const k=2*dot(D,n);
-  return norm({x:D.x-k*n.x,y:D.y-k*n.y});
-}
-
-function buildRay(angle,g,maxBounces){
-  // fonte na borda direita, levemente deslocada para dentro
-  const source={x:g.cx+g.R-0.35,y:g.cy};
-  let P=source;
-  let D={x:Math.cos(angle),y:Math.sin(angle)};
-  const segments=[];
-  let cum=0;
-  for(let b=0;b<=maxBounces;b++){
-    const hit=rayCircleHit(P,D,g);
-    if(!hit) break;
-    const A=P, B=hit.P, L=hit.t;
-    segments.push({A,B,D,L,start:cum,end:cum+L,bounce:b});
-    cum+=L;
-    D=reflectedDirection(D,B,g);
-    P=vadd(B,vmul(D,0.45));
-    cum+=0.45;
+  function ajustarCanvas(){
+    const rect = wrap.getBoundingClientRect();
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.max(1, Math.floor(rect.width * dpr));
+    canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+    canvas.style.width = rect.width + 'px';
+    canvas.style.height = rect.height + 'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    calcularPontos(rect.width, rect.height);
+    desenhar();
   }
-  return {source,segments,total:cum};
-}
 
-function rebuildRays(){
-  if(mode!=='wave' && mode!=='ray') return;
-  const g=geom();
-  const count=Math.max(12,+density.value);
-  const maxB=+bounces.value;
-  rays=[];
-  // direções no semiplano interior a partir da borda direita
-  const pad=0.035;
-  for(let i=0;i<count;i++){
-    const u=(i+0.5)/count;
-    const angle=Math.PI/2+pad + u*(Math.PI-2*pad);
-    rays.push(buildRay(angle,g,maxB));
-  }
-  maxOpticalLength=Math.max(...rays.map(r=>r.total),g.R*2);
-  needsRayBuild=false;
-}
-
-function positionAt(ray,L){
-  if(ray.segments.length===0) return null;
-  for(const s of ray.segments){
-    if(L<=s.end){
-      const local=Math.max(0,L-s.start);
-      const p=Math.min(1,local/s.L);
-      return {
-        x:s.A.x+(s.B.x-s.A.x)*p,
-        y:s.A.y+(s.B.y-s.A.y)*p,
-        bounce:s.bounce,
-        seg:s,
-        p
-      };
+  function calcularPontos(w,h){
+    const cx = w/2;
+    const cy = h/2;
+    const r = Math.min(w,h) * .43;
+    pontos = [];
+    for(let i=0;i<TOTAL;i++){
+      const a = -Math.PI/2 + i * (Math.PI*2/TOTAL);
+      pontos.push({
+        x: cx + Math.cos(a)*r,
+        y: cy + Math.sin(a)*r
+      });
     }
   }
-  const s=ray.segments[ray.segments.length-1];
-  return {x:s.B.x,y:s.B.y,bounce:s.bounce,seg:s,p:1};
-}
 
-function drawRayPath(ray,L,alpha=1,lineWidth=1.2){
-  let remaining=L;
-  ctx.beginPath();
-  let started=false;
-  for(const s of ray.segments){
-    if(remaining<=0) break;
-    const amount=Math.min(s.L,remaining);
-    const p=amount/s.L;
-    const x=s.A.x+(s.B.x-s.A.x)*p;
-    const y=s.A.y+(s.B.y-s.A.y)*p;
-    if(!started){ctx.moveTo(s.A.x,s.A.y);started=true;}
-    ctx.lineTo(x,y);
-    remaining-=amount;
-    if(amount<s.L) break;
-  }
-  const grad=ctx.createLinearGradient(ray.source.x,ray.source.y,geom().cx,geom().cy);
-  grad.addColorStop(0,`rgba(255,209,102,${0.20*alpha})`);
-  grad.addColorStop(.55,`rgba(98,232,255,${0.30*alpha})`);
-  grad.addColorStop(1,`rgba(98,232,255,${0.62*alpha})`);
-  ctx.strokeStyle=grad;
-  ctx.lineWidth=lineWidth;
-  ctx.stroke();
-}
-
-function drawBackground(g){
-  const grd=ctx.createRadialGradient(g.cx,g.cy,0,g.cx,g.cy,g.R*1.25);
-  grd.addColorStop(0,'rgba(22,45,76,.46)');
-  grd.addColorStop(1,'rgba(4,10,20,.08)');
-  ctx.fillStyle=grd;
-  ctx.fillRect(0,0,g.w,g.h);
-
-  ctx.beginPath();
-  ctx.arc(g.cx,g.cy,g.R,0,TAU);
-  ctx.fillStyle='rgba(3,10,21,.70)';
-  ctx.fill();
-  ctx.lineWidth=1.7;
-  ctx.strokeStyle='rgba(126,159,205,.72)';
-  ctx.stroke();
-}
-
-function drawBoundaryPoints(g,N,sourceAtRight=false){
-  if(!showPoints.checked) return;
-  const every=N>120?4:N>80?3:N>48?2:1;
-  for(let i=0;i<N;i+=every){
-    const a=sourceAtRight ? i*TAU/N : (-Math.PI/2+i*TAU/N);
-    const x=g.cx+g.R*Math.cos(a), y=g.cy+g.R*Math.sin(a);
-    ctx.beginPath();ctx.arc(x,y,2.2,0,TAU);
-    ctx.fillStyle='rgba(237,245,255,.82)';ctx.fill();
-  }
-}
-
-function glowDot(x,y,color,r=5,blur=15){
-  ctx.save();
-  ctx.shadowColor=color;ctx.shadowBlur=blur;
-  ctx.fillStyle=color;ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fill();
-  ctx.restore();
-}
-
-function drawString(g){
-  const N=+density.value;
-  drawBoundaryPoints(g,N,false);
-
-  for(let i=0;i<stringStep;i++){
-    const a=pointOnCircle(i,N,g), b=pointOnCircle(destination(i,N),N,g);
-    ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);
-    ctx.strokeStyle='rgba(98,232,255,.27)';ctx.lineWidth=1;ctx.stroke();
+  function limpar(){
+    const rect = wrap.getBoundingClientRect();
+    ctx.clearRect(0,0,rect.width,rect.height);
   }
 
-  if(stringStep<N){
-    const a=pointOnCircle(stringStep,N,g), b=pointOnCircle(destination(stringStep,N),N,g);
-    const p=stringAnimating?stringAnim:0;
-    const x=a.x+(b.x-a.x)*p, y=a.y+(b.y-a.y)*p;
-    if(stringAnimating){
-      ctx.save();ctx.shadowColor=cssVar('--yellow');ctx.shadowBlur=10;
-      ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(x,y);
-      ctx.strokeStyle=cssVar('--yellow');ctx.lineWidth=3;ctx.stroke();
-      ctx.restore();
-      glowDot(x,y,cssVar('--yellow'),4.5,12);
+  function easeOutCubic(t){
+    return 1 - Math.pow(1 - t, 3);
+  }
+
+  function interpolar(a, b, t){
+    return {
+      x: a.x + (b.x - a.x) * t,
+      y: a.y + (b.y - a.y) * t
+    };
+  }
+
+  function linha(a,b,cor,largura,sombra=false){
+    ctx.save();
+    if(sombra){
+      ctx.shadowColor = cores.brilho;
+      ctx.shadowBlur = 10;
     }
-    glowDot(a.x,a.y,cssVar('--yellow'),4,8);
-    glowDot(b.x,b.y,cssVar('--green'),4,8);
-  }
-
-  ctx.fillStyle='rgba(217,229,248,.92)';
-  ctx.font='800 16px system-ui';ctx.textAlign='center';
-  ctx.fillText(stringStep>=N?'CARDIOIDE COMPLETO':'× 2',g.cx,g.cy-2);
-  ctx.font='12px system-ui';ctx.fillStyle='rgba(159,176,204,.8)';
-  ctx.fillText(`N = ${N} pontos`,g.cx,g.cy+22);
-}
-
-function drawSingleRay(g){
-  if(needsRayBuild) rebuildRays();
-  const count=rays.length;
-  if(!count) return;
-  drawBoundaryPoints(g,Math.max(24,+density.value),true);
-
-  const idx=Math.min(rayIndex,count-1);
-  const ray=rays[idx];
-  const L=rayPhase*ray.total;
-
-  // já vistos bem fracos
-  for(let i=0;i<idx;i++){
-    drawRayPath(rays[i],rays[i].total,.22,.9);
-  }
-
-  drawRayPath(ray,L,1,2.6);
-  const pos=positionAt(ray,L);
-  glowDot(ray.source.x,ray.source.y,cssVar('--yellow'),6,22);
-  if(pos) glowDot(pos.x,pos.y,'#ffffff',4.3,18);
-
-  ctx.fillStyle='rgba(217,229,248,.92)';
-  ctx.font='800 15px system-ui';ctx.textAlign='center';
-  ctx.fillText('RAIO INCIDENTE + REFLEXÃO',g.cx,g.cy-2);
-}
-
-function drawWave(g){
-  if(needsRayBuild) rebuildRays();
-  if(!rays.length) return;
-
-  const speedScale=+speed.value/100;
-  const L=waveDistance;
-  const source=rays[0].source;
-
-  drawBoundaryPoints(g,Math.max(24,+density.value),true);
-
-  // clip óptico à cavidade
-  ctx.save();
-  ctx.beginPath();ctx.arc(g.cx,g.cy,g.R,0,TAU);ctx.clip();
-
-  // Frente circular original: mostra o "pulso" antes/depois de começar a tocar a borda.
-  if(showFront.checked && L<=2.05*g.R){
-    ctx.save();
-    ctx.beginPath();ctx.arc(source.x,source.y,L,0,TAU);
-    ctx.strokeStyle='rgba(255,209,102,.52)';
-    ctx.lineWidth=2.1;ctx.setLineDash([7,7]);
-    ctx.shadowColor='rgba(255,209,102,.9)';ctx.shadowBlur=8;
-    ctx.stroke();ctx.restore();
-  }
-
-  const heads=[];
-  const rayCount=rays.length;
-  const drawEvery=rayCount>180?2:1;
-
-  for(let i=0;i<rayCount;i+=drawEvery){
-    const ray=rays[i];
-    const pos=positionAt(ray,L);
-    if(!pos) continue;
-
-    // caminho já percorrido por todos os feixes simultâneos
-    drawRayPath(ray,L,1,rayCount>150?.7:1.0);
-    heads.push({...pos,index:i});
-
-    // pequenos pontos de luz nos "fótons" didáticos
-    ctx.save();
-    ctx.shadowColor='rgba(98,232,255,.9)';
-    ctx.shadowBlur=6;
-    ctx.beginPath();ctx.arc(pos.x,pos.y,rayCount>150?1.25:1.7,0,TAU);
-    ctx.fillStyle='rgba(225,251,255,.85)';ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(a.x,a.y);
+    ctx.lineTo(b.x,b.y);
+    ctx.strokeStyle = cor;
+    ctx.lineWidth = largura;
+    ctx.lineCap = 'round';
+    ctx.stroke();
     ctx.restore();
   }
 
-  // Frente refletida aproximada: conecta raios vizinhos que estão no mesmo número de ricochetes.
-  if(showFront.checked && heads.length>2){
-    let currentBounce=null;
+  function marcarPonto(p, raio, cor, glow=false){
     ctx.save();
-    ctx.strokeStyle='rgba(124,240,173,.80)';
-    ctx.lineWidth=1.8;ctx.shadowColor='rgba(124,240,173,.8)';ctx.shadowBlur=8;
+    if(glow){
+      ctx.shadowColor = cores.brilho;
+      ctx.shadowBlur = 14;
+    }
     ctx.beginPath();
-    let penDown=false;
-    for(const h of heads){
-      if(h.bounce!==currentBounce){
-        currentBounce=h.bounce;penDown=false;
-      }
-      if(!penDown){ctx.moveTo(h.x,h.y);penDown=true;}
-      else ctx.lineTo(h.x,h.y);
-    }
-    ctx.stroke();ctx.restore();
+    ctx.arc(p.x,p.y,raio,0,Math.PI*2);
+    ctx.fillStyle = cor;
+    ctx.fill();
+    ctx.restore();
   }
 
-  ctx.restore();
+  function desenhar(){
+    const rect = wrap.getBoundingClientRect();
+    limpar();
 
-  // fonte
-  glowDot(source.x,source.y,cssVar('--yellow'),6.3,24);
+    const cx = rect.width/2;
+    const cy = rect.height/2;
+    const r = Math.min(rect.width,rect.height)*.43;
 
-  // Caústica: envelope aproximado dos raios após o primeiro ricochete.
-  if(showCaustic.checked){
-    const firstBounceLines=[];
-    for(const ray of rays){
-      if(ray.segments.length<2) continue;
-      const s=ray.segments[1];
-      firstBounceLines.push({P:s.A,D:norm(vsub(s.B,s.A))});
+    // Fundo escuro
+    ctx.fillStyle = cores.fundo;
+    ctx.fillRect(0,0,rect.width,rect.height);
+
+    // Disco base
+    ctx.beginPath();
+    ctx.arc(cx,cy,r,0,Math.PI*2);
+    ctx.fillStyle = cores.disco;
+    ctx.fill();
+
+    // Aro
+    ctx.beginPath();
+    ctx.arc(cx,cy,r,0,Math.PI*2);
+    ctx.strokeStyle = cores.aro;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Linhas concluídas
+    for(let i=0;i<indiceAtual;i++){
+      const origem = pontos[i];
+      const destino = pontos[(i*2)%TOTAL];
+      linha(origem,destino,cores.linha,2,false);
     }
-    const caustic=[];
-    for(let i=0;i<firstBounceLines.length-1;i++){
-      const A=firstBounceLines[i],B=firstBounceLines[i+1];
-      const cross=A.D.x*B.D.y-A.D.y*B.D.x;
-      if(Math.abs(cross)<1e-7) continue;
-      const diff=vsub(B.P,A.P);
-      const t=(diff.x*B.D.y-diff.y*B.D.x)/cross;
-      const X=vadd(A.P,vmul(A.D,t));
-      if(Math.hypot(X.x-g.cx,X.y-g.cy)<g.R*1.02) caustic.push(X);
+
+    // Linha em costura
+    if(indiceAtual < TOTAL){
+      const origem = pontos[indiceAtual];
+      const destino = pontos[(indiceAtual*2)%TOTAL];
+      const t = easeOutCubic(Math.min(progressoLinha,1));
+      const ponta = interpolar(origem, destino, t);
+
+      linha(origem, ponta, cores.linhaAtiva, 2.6, true);
+      marcarPonto(origem, 2.2, cores.agulha, false);
+      marcarPonto(ponta, 4.2, cores.agulha, true);
     }
-    if(caustic.length>2){
-      ctx.save();
-      ctx.beginPath();ctx.moveTo(caustic[0].x,caustic[0].y);
-      for(let i=1;i<caustic.length;i++)ctx.lineTo(caustic[i].x,caustic[i].y);
-      ctx.strokeStyle='rgba(255,123,213,.88)';ctx.lineWidth=2.2;
-      ctx.shadowColor='rgba(255,123,213,.95)';ctx.shadowBlur=13;ctx.stroke();ctx.restore();
+
+    // Pontos discretos na borda
+    for(let i=0;i<TOTAL;i++){
+      marcarPonto(pontos[i], 1.6, cores.ponto, false);
     }
   }
 
-  ctx.fillStyle='rgba(217,229,248,.94)';
-  ctx.font='800 15px system-ui';ctx.textAlign='center';
-  ctx.fillText('ONDA CONTÍNUA + RAIOS SIMULTÂNEOS',g.cx,g.cy-2);
-  ctx.font='12px system-ui';ctx.fillStyle='rgba(159,176,204,.82)';
-  ctx.fillText(`${rays.length} raios • até ${bounces.value} ricochetes`,g.cx,g.cy+21);
-}
+  function animar(tempo){
+    if(pausado) return;
 
-function draw(){
-  const g=geom();
-  ctx.clearRect(0,0,g.w,g.h);
-  drawBackground(g);
-  if(mode==='string') drawString(g);
-  else if(mode==='ray') drawSingleRay(g);
-  else drawWave(g);
-  updateUI();
-}
+    if(!ultimoTempo) ultimoTempo = tempo;
+    const delta = tempo - ultimoTempo;
+    ultimoTempo = tempo;
 
-function updateTexts(){
-  if(mode==='string'){
-    densityLabel.textContent='Número de pontos';
-    formulaBox.innerHTML='<b>String Art:</b> cada ponto <b>n</b> é ligado ao ponto <b>2n (módulo N)</b>. A família de segmentos desenha o cardioide.';
-    infoText.textContent='Aqui vemos a construção matemática discreta: as linhas aparecem uma a uma até formar a curva.';
-  }else if(mode==='ray'){
-    densityLabel.textContent='Quantidade de raios';
-    formulaBox.innerHTML='<b>Óptica geométrica:</b> o raio sai de uma fonte na borda, atinge a parede circular e é refletido com ângulo de reflexão igual ao ângulo de incidência.';
-    infoText.textContent='Este modo separa um raio por vez para tornar visível o caminho incidente, o ponto de impacto e o raio refletido.';
-  }else{
-    densityLabel.textContent='Raios simultâneos';
-    formulaBox.innerHTML='<b>Onda contínua:</b> todos os raios partem ao mesmo tempo. A circunferência amarela representa a frente de onda que cresce; ao encontrar a parede, cada direção é refletida e continua viajando.';
-    infoText.textContent='É uma visualização didática por ray tracing: a frente circular cresce continuamente, diferentes regiões tocam a borda em instantes diferentes e os raios refletidos se acumulam. A linha rosa destaca a caústica formada pela concentração dos raios.';
-  }
-}
+    if(indiceAtual < TOTAL){
+      progressoLinha += delta / DURACAO_LINHA;
 
-function updateUI(){
-  const N=+density.value;
-  densityOut.value=N;
-  speedOut.value=(+speed.value/100).toFixed(1).replace('.',',')+'×';
-  bouncesOut.value=bounces.value;
-
-  bounceControl.style.display=mode==='string'?'none':'grid';
-  frontToggleRow.style.display=mode==='wave'?'flex':'none';
-  causticToggleRow.style.display=mode==='wave'?'flex':'none';
-
-  if(mode==='string'){
-    modeBadge.textContent='STRING ART';modeOut.value='String';
-    if(stringStep>=N){movement.textContent='Concluído';progress.textContent=`${N} linhas desenhadas`;}
-    else{movement.textContent=`${stringStep+1} → ${destination(stringStep,N)+1}`;progress.textContent=`Passo ${stringStep+1} de ${N}`;}
-  }else if(mode==='ray'){
-    modeBadge.textContent='RAIO ÚNICO';modeOut.value='Raio';
-    movement.textContent=`Raio ${Math.min(rayIndex+1,Math.max(1,rays.length))}`;
-    progress.textContent='Observe a incidência e o ricochete';
-  }else{
-    modeBadge.textContent='ONDA CONTÍNUA';modeOut.value='Onda';
-    movement.textContent='Todos os raios ao mesmo tempo';
-    progress.textContent='Frente circular → reflexão → caústica';
-  }
-
-  stepBtn.disabled = mode==='wave';
-  backBtn.disabled = mode==='wave';
-}
-
-function setMode(m){
-  mode=m;
-  stringMode.classList.toggle('active',m==='string');
-  rayMode.classList.toggle('active',m==='ray');
-  waveMode.classList.toggle('active',m==='wave');
-  reset(false);
-  updateTexts();
-  if(m==='wave') start();
-  draw();
-}
-
-function maxRayDist(){
-  if(needsRayBuild) rebuildRays();
-  return maxOpticalLength;
-}
-
-function tick(t){
-  if(!running)return;
-  if(!lastT)lastT=t;
-  const dt=Math.min(50,t-lastT);lastT=t;
-  const s=+speed.value/100;
-
-  if(mode==='string'){
-    if(stringStep<+density.value){
-      stringAnimating=true;
-      stringAnim+=dt/(800/s);
-      if(stringAnim>=1){stringAnim=0;stringStep++;}
-    }else stop();
-  }else if(mode==='ray'){
-    if(needsRayBuild)rebuildRays();
-    if(rays.length){
-      rayPhase+=dt/(1500/s);
-      if(rayPhase>=1){
-        rayPhase=0;
-        rayIndex++;
-        if(rayIndex>=rays.length)rayIndex=0;
+      while(progressoLinha >= 1 && indiceAtual < TOTAL){
+        progressoLinha -= 1;
+        indiceAtual += 1;
       }
     }
-  }else{
-    if(needsRayBuild)rebuildRays();
-    // velocidade espacial proporcional ao raio
-    const g=geom();
-    waveDistance += dt * (g.R*0.00072) * s;
-    const cycle=Math.max(g.R*2.25, maxRayDist()*0.92);
-    if(waveDistance>cycle) waveDistance=0;
+
+    desenhar();
+
+    if(indiceAtual < TOTAL){
+      raf = requestAnimationFrame(animar);
+    }else{
+      concluido = true;
+    }
   }
 
-  draw();
-  raf=requestAnimationFrame(tick);
-}
-
-function start(){
-  if(running)return;
-  running=true;lastT=0;
-  playIcon.textContent='⏸';playText.textContent='Pausar';
-  raf=requestAnimationFrame(tick);
-}
-
-function stop(){
-  running=false;
-  if(raf)cancelAnimationFrame(raf);raf=null;lastT=0;
-  playIcon.textContent='▶';playText.textContent='Iniciar';
-}
-
-function reset(keepRunning=true){
-  const was=running;
-  stop();
-  stringStep=0;stringAnim=0;stringAnimating=false;
-  rayIndex=0;rayPhase=0;
-  waveDistance=0;
-  needsRayBuild=true;
-  draw();
-  if(keepRunning && (was || mode==='wave')) start();
-}
-
-function step(){
-  if(mode==='string'){
-    stop();
-    if(stringStep<+density.value){stringAnimating=true;stringAnim=1;stringStep++;stringAnimating=false;stringAnim=0;}
-  }else if(mode==='ray'){
-    stop();
-    if(needsRayBuild)rebuildRays();
-    rayIndex=(rayIndex+1)%Math.max(1,rays.length);rayPhase=0;
+  function reiniciar(){
+    if(raf) cancelAnimationFrame(raf);
+    indiceAtual = 0;
+    progressoLinha = 0;
+    ultimoTempo = 0;
+    concluido = false;
+    desenhar();
+    raf = requestAnimationFrame(animar);
   }
-  draw();
-}
-function back(){
-  if(mode==='string'){stop();stringStep=Math.max(0,stringStep-1);}
-  else if(mode==='ray'){stop();if(needsRayBuild)rebuildRays();rayIndex=(rayIndex-1+rays.length)%Math.max(1,rays.length);rayPhase=0;}
-  draw();
-}
 
-playBtn.onclick=()=>running?stop():start();
-resetBtn.onclick=()=>reset(false);
-stepBtn.onclick=step;
-backBtn.onclick=back;
+  const ro = new ResizeObserver(ajustarCanvas);
+  ro.observe(wrap);
 
-stringMode.onclick=()=>setMode('string');
-rayMode.onclick=()=>setMode('ray');
-waveMode.onclick=()=>setMode('wave');
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden){
+      pausado = true;
+      if(raf) cancelAnimationFrame(raf);
+    }else{
+      pausado = false;
+      ultimoTempo = 0;
+      if(!concluido) raf = requestAnimationFrame(animar);
+    }
+  });
 
-density.oninput=()=>{needsRayBuild=true;reset(true);}
-speed.oninput=()=>draw();
-bounces.oninput=()=>{needsRayBuild=true;reset(true);}
-showPoints.onchange=draw;
-showFront.onchange=draw;
-showCaustic.onchange=draw;
+  replay.addEventListener('click', reiniciar);
 
-window.addEventListener('resize',()=>{needsRayBuild=true;resize();});
+  // Menu lateral
+  const drawer = document.getElementById('drawer');
+  const overlay = document.getElementById('overlay');
+  const abrir = document.getElementById('abrirMenu');
+  const fechar = document.getElementById('fecharMenu');
+  const links = [...document.querySelectorAll('.nav-link')];
+  const paginas = [...document.querySelectorAll('.pagina')];
 
-let sx=null;
-canvas.addEventListener('touchstart',e=>{if(e.touches.length===1)sx=e.touches[0].clientX},{passive:true});
-canvas.addEventListener('touchend',e=>{
-  if(sx===null)return;
-  const dx=e.changedTouches[0].clientX-sx;
-  if(Math.abs(dx)>55 && mode!=='wave'){dx<0?step():back();}
-  sx=null;
-},{passive:true});
+  function abrirMenu(){
+    drawer.classList.add('aberto');
+    overlay.classList.add('aberto');
+    document.body.classList.add('menu-aberto');
+    abrir.setAttribute('aria-expanded','true');
+    setTimeout(()=>fechar.focus(),120);
+  }
 
-updateTexts();
-resize();
+  function fecharMenu(){
+    drawer.classList.remove('aberto');
+    overlay.classList.remove('aberto');
+    document.body.classList.remove('menu-aberto');
+    abrir.setAttribute('aria-expanded','false');
+  }
+
+  function navegar(id){
+    paginas.forEach(p=>p.classList.toggle('ativa',p.id===id));
+    links.forEach(l=>l.classList.toggle('ativo',l.dataset.pagina===id));
+    history.replaceState(null,'','#'+id);
+    fecharMenu();
+    window.scrollTo({top:0,behavior:'smooth'});
+    if(id==='animacao'){
+      setTimeout(()=>{
+        ajustarCanvas();
+        if(concluido) desenhar();
+      },60);
+    }
+  }
+
+  abrir.addEventListener('click',abrirMenu);
+  fechar.addEventListener('click',fecharMenu);
+  overlay.addEventListener('click',fecharMenu);
+
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape') fecharMenu();
+  });
+
+  links.forEach(link=>{
+    link.addEventListener('click',()=>navegar(link.dataset.pagina));
+  });
+
+  // Mini diagrama da seção matemática
+  const mini = document.getElementById('miniCirculo');
+  for(let i=0;i<12;i++){
+    const p = document.createElement('span');
+    const a = -Math.PI/2 + i*(Math.PI*2/12);
+    p.style.left = (50 + Math.cos(a)*45) + '%';
+    p.style.top = (50 + Math.sin(a)*45) + '%';
+    mini.appendChild(p);
+  }
+
+  const hash = location.hash.replace('#','');
+  if(['animacao','como-funciona','matematica'].includes(hash)){
+    navegar(hash);
+  }
+
+  setTimeout(()=>{
+    ajustarCanvas();
+    raf = requestAnimationFrame(animar);
+  },80);
 })();
 </script>
+
 </body>
 </html>
